@@ -19,49 +19,52 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public String updateUser(@Valid @RequestBody UserRequestDTO userRequestDTO, @PathVariable int userId) {
+    public ResponseSuccess updateUser(@Valid @RequestBody UserRequestDTO userRequestDTO, @PathVariable int userId) {
         System.out.println("User ID: " + userId);
-        return "User updated successfully";
-
+        return new ResponseSuccess(HttpStatus.ACCEPTED, "User updated successfully");
     }
 
     @PatchMapping("/{userId}")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public String changeStatus(@Min(1) @RequestParam(required = false) int status, @Min(1) @PathVariable int userId) {
+    public ResponseSuccess changeStatus(@Min(1) @RequestParam(required = false) int status,
+            @Min(1) @PathVariable int userId) {
         System.out.println("Request to change status of user ID: " + userId + " to " + status);
-        return "User status changed successfully, status: " + status;
+        return new ResponseSuccess(HttpStatus.ACCEPTED, "Status changed successfully");
 
     }
 
     @DeleteMapping("/{userId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public String deleteUser(@Min(1) @PathVariable int userId) {
+    public ResponseSuccess deleteUser(@Min(1) @PathVariable int userId) {
         System.out.println("Request to delete user ID: " + userId);
-        return "User deleted successfully, ID: " + userId;
+        return new ResponseSuccess(HttpStatus.NO_CONTENT, "User deleted successfully");
     }
 
     @GetMapping("/{userId}")
-    @ResponseStatus(HttpStatus.OK)
-    public UserRequestDTO getUser(@PathVariable int userId) {
+    public ResponseSuccess getUser(@PathVariable int userId) {
         System.out.println("Request to get user ID: " + userId);
-        return UserRequestDTO.builder().firstName("John").lastName("Doe").email("john.doe@example.com")
-                .phone("1234567890").build();
+        // return
+        // UserRequestDTO.builder().firstName("John").lastName("Doe").email("john.doe@example.com")
+        // .phone("1234567890").build();
+        return new ResponseSuccess(HttpStatus.OK, "User retrieved successfully", UserRequestDTO.builder()
+                .firstName("John").lastName("Doe").email("john.doe@example.com").phone("1234567890").build());
 
     }
 
     @GetMapping("/list")
     @ResponseStatus(HttpStatus.OK)
-    public List<UserRequestDTO> getAllUsers(
+    public ResponseSuccess getAllUsers(
             @RequestParam(required = false) String email,
             @RequestParam(defaultValue = "0") int pageNo,
-            @RequestParam(defaultValue = "10") int pageSize
-    ) {
+            @RequestParam(defaultValue = "10") int pageSize) {
         System.out.println("Request to get all users");
-        return List.of(
+        // return List.of(
+        // UserRequestDTO.builder().firstName("John").lastName("Doe").email("john.doe@example.com")
+        // .phone("1234567890").build(),
+        // UserRequestDTO.builder().firstName("Jane").lastName("Smith").email("jane.smith@example.com")
+        // .phone("9876543210").build());
+        return new ResponseSuccess(HttpStatus.OK, "Users retrieved successfully", List.of(
                 UserRequestDTO.builder().firstName("John").lastName("Doe").email("john.doe@example.com")
                         .phone("1234567890").build(),
                 UserRequestDTO.builder().firstName("Jane").lastName("Smith").email("jane.smith@example.com")
-                        .phone("9876543210").build());
+                        .phone("9876543210").build()));
     }
 }

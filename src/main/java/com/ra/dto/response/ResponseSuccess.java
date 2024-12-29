@@ -9,15 +9,16 @@ import org.springframework.http.ResponseEntity;
 public class ResponseSuccess extends ResponseEntity<ResponseSuccess.Payload> {
 
     // PUT. PATCH . DELETE
-    public ResponseSuccess(HttpStatus status, String message) {
+    public ResponseSuccess(HttpStatusCode status, String message) {
         super(new Payload(status.value(), message), HttpStatus.OK);
+//        super(new Payload(status.value(), message), status);
     }
 
     // GET . POST .
 //    public ResponseSuccess(HttpStatus status, String message, Object data) {
 //        super(new Payload(status.value(), message, data), HttpStatus.OK);
 //    }
-    public ResponseSuccess(HttpStatus status, String message, Object data) {
+    public ResponseSuccess(HttpStatusCode status, String message, Object data) {
         super(new Payload(status.value(), message, data), status);
     }
 

@@ -1,5 +1,6 @@
-package com.ra.util;
+package com.ra.dto.validator;
 
+import com.ra.util.Gender;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 

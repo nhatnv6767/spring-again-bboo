@@ -1,6 +1,10 @@
 package com.ra.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ra.dto.validator.EnumPattern;
+import com.ra.dto.validator.EnumValue;
+import com.ra.dto.validator.GenderSubset;
+import com.ra.dto.validator.PhoneNumber;
 import com.ra.util.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -9,7 +13,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import static com.ra.util.Gender.*;
 

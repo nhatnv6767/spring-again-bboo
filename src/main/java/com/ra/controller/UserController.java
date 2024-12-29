@@ -3,11 +3,13 @@ package com.ra.controller;
 import com.ra.dto.request.UserRequestDTO;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/user")
 public class UserController {
 
-    @PostMapping("/")
+    @PostMapping(value = "/", headers = "apiKey=v1.0")
     public String addUser(@RequestBody UserRequestDTO userRequestDTO) {
         return "User added successfully";
     }
@@ -40,4 +42,17 @@ public class UserController {
 
     }
 
+    @GetMapping("/list")
+    public List<UserRequestDTO> getAllUsers(
+            @RequestParam(required = false) String email,
+            @RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize
+    ) {
+        System.out.println("Request to get all users");
+        return List.of(
+                UserRequestDTO.builder().firstName("John").lastName("Doe").email("john.doe@example.com")
+                        .phone("1234567890").build(),
+                UserRequestDTO.builder().firstName("Jane").lastName("Smith").email("jane.smith@example.com")
+                        .phone("9876543210").build());
+    }
 }

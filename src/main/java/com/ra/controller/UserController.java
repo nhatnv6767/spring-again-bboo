@@ -1,6 +1,8 @@
 package com.ra.controller;
 
 import com.ra.dto.request.UserRequestDTO;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -9,27 +11,27 @@ import java.util.List;
 @RequestMapping("/user")
 public class UserController {
 
-    @PostMapping(value = "/", headers = "apiKey=v1.0")
-    public String addUser(@RequestBody UserRequestDTO userRequestDTO) {
+    @PostMapping(value = "/")
+    public String addUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
         return "User added successfully";
     }
 
     @PutMapping("/{userId}")
-    public String updateUser(@RequestBody UserRequestDTO userRequestDTO, @PathVariable int userId) {
+    public String updateUser(@Valid @RequestBody UserRequestDTO userRequestDTO, @PathVariable int userId) {
         System.out.println("User ID: " + userId);
         return "User updated successfully";
 
     }
 
     @PatchMapping("/{userId}")
-    public String changeStatus(@RequestParam(required = false) boolean status, @PathVariable int userId) {
+    public String changeStatus(@Min(1) @RequestParam(required = false) int status, @Min(1) @PathVariable int userId) {
         System.out.println("Request to change status of user ID: " + userId + " to " + status);
         return "User status changed successfully, status: " + status;
 
     }
 
     @DeleteMapping("/{userId}")
-    public String deleteUser(@PathVariable int userId) {
+    public String deleteUser(@Min(1) @PathVariable int userId) {
         System.out.println("Request to delete user ID: " + userId);
         return "User deleted successfully, ID: " + userId;
     }

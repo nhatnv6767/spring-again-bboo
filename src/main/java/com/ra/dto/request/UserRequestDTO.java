@@ -1,8 +1,15 @@
 package com.ra.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ra.util.PhoneNumber;
+import jakarta.validation.constraints.*;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /*
  * Serializable là một interface đánh dấu (marker interface) trong Java, được sử dụng để cho phép một đối tượng có thể chuyển đổi thành một chuỗi byte
@@ -32,9 +39,25 @@ import java.io.Serializable;
 @Builder
 
 public class UserRequestDTO implements Serializable {
+    @NotBlank(message = "First name is required")
     private String firstName;
+
+    @NotNull(message = "Last name is required")
     private String lastName;
+
+    @Email(message = "Email should be valid")
     private String email;
+
+    //    @Pattern(regexp = "^\\d{10}$", message = "Phone number should be 10 digits")
+    @PhoneNumber
     private String phone;
+
+    @NotNull(message = "Date of birth is required")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private Date dateOfBirth;
+
+    @NotEmpty(message = "Permissions are required")
+    private List<String> permissions;
 
 }

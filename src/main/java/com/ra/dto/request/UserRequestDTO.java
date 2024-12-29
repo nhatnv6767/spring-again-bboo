@@ -2,6 +2,7 @@ package com.ra.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ra.util.PhoneNumber;
+import com.ra.util.UserStatus;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -59,5 +60,8 @@ public class UserRequestDTO implements Serializable {
 
     @NotEmpty(message = "Permissions are required")
     private List<String> permissions;
+
+    @Pattern(regexp = "^ACTIVE|INACTIVE|NONE$", message = "status must be one in {ACTIVE, INACTIVE, NONE}")
+    private UserStatus status;
 
 }

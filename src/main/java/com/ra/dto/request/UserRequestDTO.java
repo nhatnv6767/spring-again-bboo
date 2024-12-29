@@ -62,6 +62,6 @@ public class UserRequestDTO implements Serializable {
     private List<String> permissions;
 
     @Pattern(regexp = "^ACTIVE|INACTIVE|NONE$", message = "status must be one in {ACTIVE, INACTIVE, NONE}")
-    private UserStatus status;
+    private String status;
 
 }

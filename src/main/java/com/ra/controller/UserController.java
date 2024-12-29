@@ -32,4 +32,12 @@ public class UserController {
         return "User deleted successfully, ID: " + userId;
     }
 
+    @GetMapping("/{userId}")
+    public UserRequestDTO getUser(@PathVariable int userId) {
+        System.out.println("Request to get user ID: " + userId);
+        return UserRequestDTO.builder().firstName("John").lastName("Doe").email("john.doe@example.com")
+                .phone("1234567890").build();
+
+    }
+
 }

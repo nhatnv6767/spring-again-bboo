@@ -1,8 +1,6 @@
 package com.ra.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 
@@ -28,9 +26,11 @@ import java.io.Serializable;
  *    - Khi thêm/sửa/xóa field trong tương lai
  *    - Giúp version control tốt hơn
  */
-@Getter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+
 public class UserRequestDTO implements Serializable {
     private String firstName;
     private String lastName;

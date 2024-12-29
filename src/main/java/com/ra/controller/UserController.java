@@ -1,6 +1,7 @@
 package com.ra.controller;
 
 import com.ra.dto.request.UserRequestDTO;
+import com.ra.dto.response.ResponseSuccess;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.HttpStatus;
@@ -13,9 +14,8 @@ import java.util.List;
 public class UserController {
 
     @PostMapping(value = "/")
-    @ResponseStatus(HttpStatus.CREATED)
-    public int addUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
-        return 1;
+    public ResponseSuccess addUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
+        return new ResponseSuccess(HttpStatus.CREATED, "User added successfully", 1);
     }
 
     @PutMapping("/{userId}")

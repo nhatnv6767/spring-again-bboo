@@ -1,6 +1,7 @@
 package com.ra.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ra.util.EnumPattern;
 import com.ra.util.PhoneNumber;
 import com.ra.util.UserStatus;
 import jakarta.validation.constraints.*;
@@ -61,7 +62,8 @@ public class UserRequestDTO implements Serializable {
     @NotEmpty(message = "Permissions are required")
     private List<String> permissions;
 
-    @Pattern(regexp = "^ACTIVE|INACTIVE|NONE$", message = "status must be one in {ACTIVE, INACTIVE, NONE}")
-    private String status;
+    //    @Pattern(regexp = "^ACTIVE|INACTIVE|NONE$", message = "status must be one in {ACTIVE, INACTIVE, NONE}")
+    @EnumPattern(name = "status", regexp = "ACTIVE|INACTIVE|NONE", message = "status must be one in {ACTIVE, INACTIVE, NONE}")
+    private UserStatus status;
 
 }

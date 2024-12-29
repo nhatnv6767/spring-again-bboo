@@ -1,9 +1,7 @@
 package com.ra.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.ra.util.EnumPattern;
-import com.ra.util.PhoneNumber;
-import com.ra.util.UserStatus;
+import com.ra.util.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -12,6 +10,8 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+
+import static com.ra.util.Gender.*;
 
 /*
  * Serializable là một interface đánh dấu (marker interface) trong Java, được sử dụng để cho phép một đối tượng có thể chuyển đổi thành một chuỗi byte
@@ -65,5 +65,12 @@ public class UserRequestDTO implements Serializable {
     //    @Pattern(regexp = "^ACTIVE|INACTIVE|NONE$", message = "status must be one in {ACTIVE, INACTIVE, NONE}")
     @EnumPattern(name = "status", regexp = "ACTIVE|INACTIVE|NONE", message = "status must be one in {ACTIVE, INACTIVE, NONE}")
     private UserStatus status;
+
+    @GenderSubset(anyOf = {MALE, FEMALE, OTHER})
+    private Gender gender;
+
+    @NotNull(message = "type must be not null")
+    @EnumValue(name = "type", enumClass = UserType.class)
+    private String type;
 
 }

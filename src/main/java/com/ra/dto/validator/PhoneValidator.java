@@ -1,9 +1,7 @@
-package com.ra.util;
+package com.ra.dto.validator;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-
-import java.lang.annotation.Annotation;
 
 public class PhoneValidator implements ConstraintValidator<PhoneNumber, String> {
     @Override

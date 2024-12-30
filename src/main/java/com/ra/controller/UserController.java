@@ -1,60 +1,84 @@
 package com.ra.controller;
 
 import com.ra.dto.request.UserRequestDTO;
+import com.ra.dto.response.*;
+import com.ra.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/user")
+@RequiredArgsConstructor
 public class UserController {
 
+    private final UserService userService;
+
     @PostMapping(value = "/")
-    public String addUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
-        return "User added successfully";
+    public ResponseData<Integer> addUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
+        try {
+            userService.addUser(userRequestDTO);
+            return new ResponseData<>(HttpStatus.CREATED.value(), "User added successfully", 1);
+        } catch (Exception e) {
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Save user failed", e.getMessage());
+        }
     }
 
     @PutMapping("/{userId}")
-    public String updateUser(@Valid @RequestBody UserRequestDTO userRequestDTO, @PathVariable int userId) {
+    public ResponseData<?> updateUser(@Valid @RequestBody UserRequestDTO userRequestDTO, @Min(1) @PathVariable int userId) {
         System.out.println("User ID: " + userId);
-        return "User updated successfully";
-
+        return new ResponseData<>(HttpStatus.ACCEPTED.value(), "User updated successfully", null);
     }
 
     @PatchMapping("/{userId}")
-    public String changeStatus(@Min(1) @RequestParam(required = false) int status, @Min(1) @PathVariable int userId) {
+    public ResponseData<?> changeStatus(@Min(1) @RequestParam(required = false) int status,
+                                        @Min(1) @PathVariable int userId) {
         System.out.println("Request to change status of user ID: " + userId + " to " + status);
-        return "User status changed successfully, status: " + status;
-
+        return new ResponseData<>(HttpStatus.ACCEPTED.value(), "Status changed successfully", null);
     }
 
     @DeleteMapping("/{userId}")
-    public String deleteUser(@Min(1) @PathVariable int userId) {
+    public ResponseData<?> deleteUser(@Min(1) @PathVariable int userId) {
         System.out.println("Request to delete user ID: " + userId);
-        return "User deleted successfully, ID: " + userId;
+        return new ResponseData<>(HttpStatus.NO_CONTENT.value(), "User deleted successfully", null);
     }
 
     @GetMapping("/{userId}")
-    public UserRequestDTO getUser(@PathVariable int userId) {
+    public ResponseData<UserRequestDTO> getUser(@PathVariable int userId) {
         System.out.println("Request to get user ID: " + userId);
-        return UserRequestDTO.builder().firstName("John").lastName("Doe").email("john.doe@example.com")
-                .phone("1234567890").build();
-
+        return new ResponseData<>(HttpStatus.OK.value(), "User retrieved successfully",
+                UserRequestDTO.builder()
+                        .firstName("John")
+                        .lastName("Doe")
+                        .email("john.doe@example.com")
+                        .phone("1234567890")
+                        .build());
     }
 
     @GetMapping("/list")
-    public List<UserRequestDTO> getAllUsers(
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseData<List<UserRequestDTO>> getAllUsers(
             @RequestParam(required = false) String email,
             @RequestParam(defaultValue = "0") int pageNo,
-            @RequestParam(defaultValue = "10") int pageSize
-    ) {
+            @Min(10) @RequestParam(defaultValue = "10") int pageSize) {
         System.out.println("Request to get all users");
-        return List.of(
-                UserRequestDTO.builder().firstName("John").lastName("Doe").email("john.doe@example.com")
-                        .phone("1234567890").build(),
-                UserRequestDTO.builder().firstName("Jane").lastName("Smith").email("jane.smith@example.com")
-                        .phone("9876543210").build());
+        return new ResponseData<>(HttpStatus.OK.value(), "Users retrieved successfully",
+                List.of(
+                        UserRequestDTO.builder()
+                                .firstName("John")
+                                .lastName("Doe")
+                                .email("john.doe@example.com")
+                                .phone("1234567890")
+                                .build(),
+                        UserRequestDTO.builder()
+                                .firstName("Jane")
+                                .lastName("Smith")
+                                .email("jane.smith@example.com")
+                                .phone("9876543210")
+                                .build()));
     }
 }

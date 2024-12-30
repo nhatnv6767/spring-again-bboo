@@ -8,6 +8,8 @@ server:
 spring:
   profiles:
     active: @spring.profiles.active@
+  application:
+    name: spring-again
   servlet:
     multipart:
       max-file-size: 10MB

@@ -7,7 +7,7 @@ server:
 # database
 spring:
   profiles:
-    active: dev
+    active: @spring.profiles.active@
   servlet:
     multipart:
       max-file-size: 10MB
@@ -47,6 +47,7 @@ open:
       description: Development server
 
 ---
+
 spring:
   config:
     activate:
@@ -59,10 +60,12 @@ open:
     description: API document
     license: API License
     server:
-      url: http://192.168.1.202:8081
+      url: http://192.168.1.202:${server.port}
       description: Test server
-
+server:
+  port: 8081
 ---
+
 spring:
   config:
     activate:
@@ -75,5 +78,7 @@ open:
     description: API document
     license: API License
     server:
-      url: http://192.168.1.202:8082
+      url: http://192.168.1.202:${server.port}
       description: Product server
+server:
+  port: 8082

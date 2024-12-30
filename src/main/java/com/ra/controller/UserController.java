@@ -22,8 +22,7 @@ public class UserController {
 
     @PostMapping(value = "/")
     public ResponseData<Integer> addUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
-        return new ResponseError(HttpStatus.BAD_REQUEST.value(), "User already exists");
-//        return new ResponseData<>(HttpStatus.CREATED.value(), "User added successfully", 1);
+        return new ResponseData<>(HttpStatus.CREATED.value(), "User added successfully", 1);
     }
 
     @PutMapping("/{userId}")

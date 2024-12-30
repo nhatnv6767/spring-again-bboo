@@ -11,6 +11,6 @@ open:
     license: API License
     server:
       url: http://192.168.1.202:${server.port}
-      description: Development server
+      description: ${API_DESCRIPTION:DUMMY-API-TITLE}
 server:
   port: 8080

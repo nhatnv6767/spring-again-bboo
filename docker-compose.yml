@@ -3,6 +3,11 @@ version: "3.9"
 services:
   api-service:
     container_name: api-container-1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      API_DESCRIPTION: Development server - DYNAMIC
     image: api-image-sample
     ports:
       - "8080:8080"

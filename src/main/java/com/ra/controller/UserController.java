@@ -19,74 +19,62 @@ import java.util.List;
 @RequestMapping("/user")
 public class UserController {
 
-
     @PostMapping(value = "/")
     public ResponseData<Integer> addUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
         return new ResponseData<>(HttpStatus.CREATED.value(), "User added successfully", 1);
     }
 
-    @Operation(summary = "Update a user", description = "Update a user in the system", responses = {
-            @ApiResponse(responseCode = "202", description = "User updated successfully", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(name = "User updated successfully", summary = "User updated successfully", value = "{\"status\":202,\"message\":\"User updated successfully\",\"data\":null}"))),
-    })
     @PutMapping("/{userId}")
-    public ResponseSuccess updateUser(@Valid @RequestBody UserRequestDTO userRequestDTO, @PathVariable int userId) {
+    public ResponseData<?> updateUser(@Valid @RequestBody UserRequestDTO userRequestDTO, @PathVariable int userId) {
         System.out.println("User ID: " + userId);
-        return new ResponseSuccess(HttpStatus.ACCEPTED, "User updated successfully");
+        return new ResponseData<>(HttpStatus.ACCEPTED.value(), "User updated successfully", null);
     }
 
-    @Operation(summary = "Change a user's status", description = "Change a user's status in the system", responses = {
-            @ApiResponse(responseCode = "202", description = "Status changed successfully", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(name = "Status changed successfully", summary = "Status changed successfully", value = "{\"status\":202,\"message\":\"Status changed successfully\",\"data\":null}"))),
-    })
     @PatchMapping("/{userId}")
-    public ResponseSuccess changeStatus(@Min(1) @RequestParam(required = false) int status,
+    public ResponseData<?> changeStatus(@Min(1) @RequestParam(required = false) int status,
                                         @Min(1) @PathVariable int userId) {
         System.out.println("Request to change status of user ID: " + userId + " to " + status);
-        return new ResponseSuccess(HttpStatus.ACCEPTED, "Status changed successfully");
-
+        return new ResponseData<>(HttpStatus.ACCEPTED.value(), "Status changed successfully", null);
     }
 
-    @Operation(summary = "Delete a user", description = "Delete a user from the system", responses = {
-            @ApiResponse(responseCode = "204", description = "User deleted successfully", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(name = "User deleted successfully", summary = "User deleted successfully", value = "{\"status\":204,\"message\":\"User deleted successfully\",\"data\":null}"))),
-    })
     @DeleteMapping("/{userId}")
-    public ResponseSuccess deleteUser(@Min(1) @PathVariable int userId) {
+    public ResponseData<?> deleteUser(@Min(1) @PathVariable int userId) {
         System.out.println("Request to delete user ID: " + userId);
-        return new ResponseSuccess(HttpStatus.NO_CONTENT, "User deleted successfully");
+        return new ResponseData<>(HttpStatus.NO_CONTENT.value(), "User deleted successfully", null);
     }
 
-    @Operation(summary = "Get a user", description = "Get a user from the system", responses = {
-            @ApiResponse(responseCode = "200", description = "User retrieved successfully", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(name = "User retrieved successfully", summary = "User retrieved successfully", value = "{\"status\":200,\"message\":\"User retrieved successfully\",\"data\":{\"firstName\":\"John\",\"lastName\":\"Doe\",\"email\":\"john.doe@example.com\",\"phone\":\"1234567890\"}}"))),
-    })
     @GetMapping("/{userId}")
-    public ResponseSuccess getUser(@PathVariable int userId) {
+    public ResponseData<UserRequestDTO> getUser(@PathVariable int userId) {
         System.out.println("Request to get user ID: " + userId);
-        // return
-        // UserRequestDTO.builder().firstName("John").lastName("Doe").email("john.doe@example.com")
-        // .phone("1234567890").build();
-        return new ResponseSuccess(HttpStatus.OK, "User retrieved successfully", UserRequestDTO.builder()
-                .firstName("John").lastName("Doe").email("john.doe@example.com").phone("1234567890").build());
-
+        return new ResponseData<>(HttpStatus.OK.value(), "User retrieved successfully",
+                UserRequestDTO.builder()
+                        .firstName("John")
+                        .lastName("Doe")
+                        .email("john.doe@example.com")
+                        .phone("1234567890")
+                        .build());
     }
 
-    @Operation(summary = "Get all users", description = "Get all users from the system", responses = {
-            @ApiResponse(responseCode = "200", description = "Users retrieved successfully", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(name = "Users retrieved successfully", summary = "Users retrieved successfully", value = "{\"status\":200,\"message\":\"Users retrieved successfully\",\"data\":[{\"firstName\":\"John\",\"lastName\":\"Doe\",\"email\":\"john.doe@example.com\",\"phone\":\"1234567890\"},{\"firstName\":\"Jane\",\"lastName\":\"Smith\",\"email\":\"jane.smith@example.com\",\"phone\":\"9876543210\"}]}"))),
-    })
     @GetMapping("/list")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseSuccess getAllUsers(
+    public ResponseData<List<UserRequestDTO>> getAllUsers(
             @RequestParam(required = false) String email,
             @RequestParam(defaultValue = "0") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize) {
         System.out.println("Request to get all users");
-        // return List.of(
-        // UserRequestDTO.builder().firstName("John").lastName("Doe").email("john.doe@example.com")
-        // .phone("1234567890").build(),
-        // UserRequestDTO.builder().firstName("Jane").lastName("Smith").email("jane.smith@example.com")
-        // .phone("9876543210").build());
-        return new ResponseSuccess(HttpStatus.OK, "Users retrieved successfully", List.of(
-                UserRequestDTO.builder().firstName("John").lastName("Doe").email("john.doe@example.com")
-                        .phone("1234567890").build(),
-                UserRequestDTO.builder().firstName("Jane").lastName("Smith").email("jane.smith@example.com")
-                        .phone("9876543210").build()));
+        return new ResponseData<>(HttpStatus.OK.value(), "Users retrieved successfully",
+                List.of(
+                        UserRequestDTO.builder()
+                                .firstName("John")
+                                .lastName("Doe")
+                                .email("john.doe@example.com")
+                                .phone("1234567890")
+                                .build(),
+                        UserRequestDTO.builder()
+                                .firstName("Jane")
+                                .lastName("Smith")
+                                .email("jane.smith@example.com")
+                                .phone("9876543210")
+                                .build()));
     }
 }

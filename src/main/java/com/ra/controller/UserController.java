@@ -32,7 +32,6 @@ public class UserController {
             return new ResponseData<>(HttpStatus.CREATED.value(), "User added successfully", 1);
         } catch (Exception e) {
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Save user failed", e.getMessage());
-            //
         }
     }
 

@@ -6,6 +6,8 @@ server:
   port: 8080
 # database
 spring:
+  profiles:
+    active: dev
   servlet:
     multipart:
       max-file-size: 10MB

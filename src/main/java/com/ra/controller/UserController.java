@@ -1,6 +1,7 @@
 package com.ra.controller;
 
 import com.ra.dto.request.UserRequestDTO;
+import com.ra.dto.response.ResponseData;
 import com.ra.dto.response.ResponseSuccess;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,12 +19,10 @@ import java.util.List;
 @RequestMapping("/user")
 public class UserController {
 
-    @Operation(summary = "Add a new user", description = "Add a new user to the system", responses = {
-            @ApiResponse(responseCode = "201", description = "User added successfully", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(name = "User added successfully", summary = "User added successfully", value = "{\"status\":201,\"message\":\"User added successfully\",\"data\":1}"))),
-    })
+
     @PostMapping(value = "/")
-    public ResponseSuccess addUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
-        return new ResponseSuccess(HttpStatus.CREATED, "User added successfully", 1);
+    public ResponseData<Integer> addUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
+        return new ResponseData<>(HttpStatus.CREATED.value(), "User added successfully", 1);
     }
 
     @Operation(summary = "Update a user", description = "Update a user in the system", responses = {
@@ -40,7 +39,7 @@ public class UserController {
     })
     @PatchMapping("/{userId}")
     public ResponseSuccess changeStatus(@Min(1) @RequestParam(required = false) int status,
-            @Min(1) @PathVariable int userId) {
+                                        @Min(1) @PathVariable int userId) {
         System.out.println("Request to change status of user ID: " + userId + " to " + status);
         return new ResponseSuccess(HttpStatus.ACCEPTED, "Status changed successfully");
 

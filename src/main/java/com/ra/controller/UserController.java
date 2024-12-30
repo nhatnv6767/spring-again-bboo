@@ -2,6 +2,7 @@ package com.ra.controller;
 
 import com.ra.dto.request.UserRequestDTO;
 import com.ra.dto.response.ResponseData;
+import com.ra.dto.response.ResponseError;
 import com.ra.dto.response.ResponseSuccess;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,7 +22,8 @@ public class UserController {
 
     @PostMapping(value = "/")
     public ResponseData<Integer> addUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
-        return new ResponseData<>(HttpStatus.CREATED.value(), "User added successfully", 1);
+        return new ResponseError(HttpStatus.BAD_REQUEST.value(), "User already exists");
+//        return new ResponseData<>(HttpStatus.CREATED.value(), "User added successfully", 1);
     }
 
     @PutMapping("/{userId}")

@@ -40,6 +40,7 @@ public class AppConfig {
 //        };
 //    }
 
+    // third way dont need to implement WebMvcConfigurer
     @Bean
     public FilterRegistrationBean<CorsFilter> corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

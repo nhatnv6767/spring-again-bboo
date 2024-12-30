@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  api-service:
+    container_name: api-container-1
+    image: api-image-sample
+    ports:
+      - "8080:8080"
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge

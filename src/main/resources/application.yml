@@ -1,4 +1,8 @@
 server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
   port: 8080
 # database
 spring:
@@ -21,3 +25,13 @@ spring:
     cloud-name: dbeb5elqt
     api-key: 261249265348835
     api-secret: XDlMaEdnkzcBV3PeiPn02QxNZrk
+
+open:
+  api:
+    title: API document
+    version: 1.0.0
+    description: API document
+    license: API License
+    server:
+      url: http://192.168.1.202:8080
+      description: Production server

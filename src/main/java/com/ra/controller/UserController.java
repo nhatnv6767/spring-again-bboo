@@ -26,12 +26,13 @@ public class UserController {
 
     @Operation(summary = "Add a new user", description = "API to add a new user")
     @PostMapping(value = "/")
-    public ResponseData<Integer> addUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
+    public ResponseData<Long> addUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
         log.info("Request to add user: {}", userRequestDTO);
         try {
-            userService.addUser(userRequestDTO);
-            return new ResponseData<>(HttpStatus.CREATED.value(), Translator.toLocale("user.add.success"), 1);
+            long userId = userService.saveUser(userRequestDTO);
+            return new ResponseData<>(HttpStatus.CREATED.value(), Translator.toLocale("user.add.success"), userId);
         } catch (Exception e) {
+            log.error("Error while adding user : {}", e.getMessage(), e.getCause());
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), Translator.toLocale("user.add.error"),
                     e.getMessage());
         }
@@ -40,7 +41,7 @@ public class UserController {
     @Operation(summary = "Update an existing user", description = "API to update an existing user")
     @PutMapping("/{userId}")
     public ResponseData<?> updateUser(@Valid @RequestBody UserRequestDTO userRequestDTO,
-            @Min(1) @PathVariable int userId) {
+                                      @Min(1) @PathVariable int userId) {
         log.info("Request to update user with ID {}: {}", userId, userRequestDTO);
         return new ResponseData<>(HttpStatus.ACCEPTED.value(), Translator.toLocale("user.update.success"), null);
     }
@@ -48,7 +49,7 @@ public class UserController {
     @Operation(summary = "Change user status", description = "API to change the status of an existing user")
     @PatchMapping("/{userId}")
     public ResponseData<?> changeStatus(@Min(1) @RequestParam(required = false) int status,
-            @Min(1) @PathVariable int userId) {
+                                        @Min(1) @PathVariable int userId) {
         log.info("Request to change status of user ID {} to {}", userId, status);
         return new ResponseData<>(HttpStatus.ACCEPTED.value(), Translator.toLocale("user.update.success"), null);
     }

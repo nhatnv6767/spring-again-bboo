@@ -13,6 +13,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import static com.ra.util.Gender.*;
 
@@ -38,42 +39,50 @@ import static com.ra.util.Gender.*;
  *    - Khi thêm/sửa/xóa field trong tương lai
  *    - Giúp version control tốt hơn
  */
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Getter
 
 public class UserRequestDTO implements Serializable {
-    @NotBlank(message = "First name is required")
+    @NotBlank(message = "firstName must be not blank")
     private String firstName;
 
-    @NotNull(message = "Last name is required")
+    @NotNull(message = "lastName must be not null")
     private String lastName;
 
-    @Email(message = "Email should be valid")
+    @Email(message = "email invalid format")
     private String email;
 
-    //    @Pattern(regexp = "^\\d{10}$", message = "Phone number should be 10 digits")
-    @PhoneNumber
+    @PhoneNumber(message = "phone invalid format")
     private String phone;
 
-    @NotNull(message = "Date of birth is required")
+    @NotNull(message = "dateOfBirth must be not null")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "MM/dd/yyyy")
     private Date dateOfBirth;
-
-    @NotEmpty(message = "Permissions are required")
-    private List<String> permissions;
-
-    //    @Pattern(regexp = "^ACTIVE|INACTIVE|NONE$", message = "status must be one in {ACTIVE, INACTIVE, NONE}")
-    @EnumPattern(name = "status", regexp = "ACTIVE|INACTIVE|NONE", message = "status must be one in {ACTIVE, INACTIVE, NONE}")
-    private UserStatus status;
 
     @GenderSubset(anyOf = {MALE, FEMALE, OTHER})
     private Gender gender;
 
+    @NotNull(message = "username must be not null")
+    private String username;
+
+    @NotNull(message = "password must be not null")
+    private String password;
+
     @NotNull(message = "type must be not null")
     @EnumValue(name = "type", enumClass = UserType.class)
     private String type;
+
+    @EnumPattern(name = "status", regexp = "ACTIVE|INACTIVE|NONE")
+    private UserStatus status;
+
+    @NotEmpty(message = "addresses can not empty")
+    private Set<AddressDTO> addresses;
+
+    public UserRequestDTO(String firstName, String lastName, String email, String phone) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.phone = phone;
+    }
 
 }

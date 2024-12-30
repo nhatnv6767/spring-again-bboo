@@ -4,12 +4,14 @@ import com.ra.dto.request.UserRequestDTO;
 import com.ra.dto.response.ResponseData;
 import com.ra.dto.response.ResponseError;
 import com.ra.dto.response.ResponseSuccess;
+import com.ra.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -18,11 +20,19 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/user")
+@RequiredArgsConstructor
 public class UserController {
+
+    private final UserService userService;
 
     @PostMapping(value = "/")
     public ResponseData<Integer> addUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
-        return new ResponseData<>(HttpStatus.CREATED.value(), "User added successfully", 1);
+        try {
+            userService.addUser(userRequestDTO);
+            return new ResponseData<>(HttpStatus.CREATED.value(), "User added successfully", 1);
+        } catch (Exception e) {
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Save user failed", e.getMessage());
+        }
     }
 
     @PutMapping("/{userId}")
@@ -61,7 +71,7 @@ public class UserController {
     public ResponseData<List<UserRequestDTO>> getAllUsers(
             @RequestParam(required = false) String email,
             @RequestParam(defaultValue = "0") int pageNo,
-            @RequestParam(defaultValue = "10") int pageSize) {
+            @Min(10) @RequestParam(defaultValue = "10") int pageSize) {
         System.out.println("Request to get all users");
         return new ResponseData<>(HttpStatus.OK.value(), "Users retrieved successfully",
                 List.of(

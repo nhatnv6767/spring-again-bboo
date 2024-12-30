@@ -1,19 +1,12 @@
 package com.ra.controller;
 
 import com.ra.dto.request.UserRequestDTO;
-import com.ra.dto.response.ResponseData;
-import com.ra.dto.response.ResponseError;
-import com.ra.dto.response.ResponseSuccess;
+import com.ra.dto.response.*;
 import com.ra.service.UserService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

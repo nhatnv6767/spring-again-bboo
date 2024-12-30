@@ -1,0 +1,27 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: ${POSTGRES_URL:jdbc:postgresql://192.168.1.113:5432/spring-yana?createDatabaseIfNotExist=true&useSSL=false}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:123456}
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+
+open:
+  api:
+    title: API document
+    version: 1.0.0
+    description: API document
+    license: API License
+    server:
+      url: http://192.168.1.202:${server.port}
+      description: ${API_DESCRIPTION:DUMMY-API-TITLE}
+server:
+  port: 8080

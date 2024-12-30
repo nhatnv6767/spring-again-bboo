@@ -1,20 +1,20 @@
 package com.ra.configuration;
 
-import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import java.util.List;
 
 @Configuration
+// build khi chạy ở môi trường khác prod
+@Profile("!prod")
 public class OpenApiConfig {
 
     @Bean
@@ -35,18 +35,19 @@ public class OpenApiConfig {
         ).servers(List.of(
                 new Server().url(serverUrl).description(serverDescription),
                 new Server().url("http://localhost:8080").description("Development server")
-        )).components(
-                // Mỗi khi gửi request lên server, cần phải có token JWT để xác thực (kiểu như tích hợp 1 lần, những lần sau được tích hợp sẵn vào luôn)
-                new Components()
-                        .addSecuritySchemes(
-                                "bearerAuth",
-                                new SecurityScheme()
-                                        .type(SecurityScheme.Type.HTTP)
-                                        .scheme("bearer")
-                                        .bearerFormat("JWT")
-                        )
-        ).security(List.of(new SecurityRequirement().addList("bearerAuth")))
-                ;
+        ));
+//                .components(
+//                // Mỗi khi gửi request lên server, cần phải có token JWT để xác thực (kiểu như tích hợp 1 lần, những lần sau được tích hợp sẵn vào luôn)
+//                new Components()
+//                        .addSecuritySchemes(
+//                                "bearerAuth",
+//                                new SecurityScheme()
+//                                        .type(SecurityScheme.Type.HTTP)
+//                                        .scheme("bearer")
+//                                        .bearerFormat("JWT")
+//                        )
+//        ).security(List.of(new SecurityRequirement().addList("bearerAuth")))
+//                ;
     }
 
     @Bean

@@ -4,6 +4,8 @@ import com.ra.configuration.Translator;
 import com.ra.dto.request.UserRequestDTO;
 import com.ra.dto.response.*;
 import com.ra.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +19,12 @@ import java.util.List;
 @RequestMapping("/user")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "User", description = "User management")
 public class UserController {
 
     private final UserService userService;
 
+    @Operation(summary = "Add a new user", description = "API to add a new user")
     @PostMapping(value = "/")
     public ResponseData<Integer> addUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
         log.info("Request to add user: {}", userRequestDTO);
@@ -28,30 +32,35 @@ public class UserController {
             userService.addUser(userRequestDTO);
             return new ResponseData<>(HttpStatus.CREATED.value(), Translator.toLocale("user.add.success"), 1);
         } catch (Exception e) {
-            return new ResponseError(HttpStatus.BAD_REQUEST.value(), Translator.toLocale("user.add.error"), e.getMessage());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), Translator.toLocale("user.add.error"),
+                    e.getMessage());
         }
     }
 
+    @Operation(summary = "Update an existing user", description = "API to update an existing user")
     @PutMapping("/{userId}")
     public ResponseData<?> updateUser(@Valid @RequestBody UserRequestDTO userRequestDTO,
-                                      @Min(1) @PathVariable int userId) {
+            @Min(1) @PathVariable int userId) {
         log.info("Request to update user with ID {}: {}", userId, userRequestDTO);
         return new ResponseData<>(HttpStatus.ACCEPTED.value(), Translator.toLocale("user.update.success"), null);
     }
 
+    @Operation(summary = "Change user status", description = "API to change the status of an existing user")
     @PatchMapping("/{userId}")
     public ResponseData<?> changeStatus(@Min(1) @RequestParam(required = false) int status,
-                                        @Min(1) @PathVariable int userId) {
+            @Min(1) @PathVariable int userId) {
         log.info("Request to change status of user ID {} to {}", userId, status);
         return new ResponseData<>(HttpStatus.ACCEPTED.value(), Translator.toLocale("user.update.success"), null);
     }
 
+    @Operation(summary = "Delete a user", description = "API to delete an existing user")
     @DeleteMapping("/{userId}")
     public ResponseData<?> deleteUser(@Min(1) @PathVariable int userId) {
         log.info("Request to delete user with ID: {}", userId);
         return new ResponseData<>(HttpStatus.NO_CONTENT.value(), Translator.toLocale("user.delete.success"), null);
     }
 
+    @Operation(summary = "Get user details", description = "API to get details of a specific user")
     @GetMapping("/{userId}")
     public ResponseData<UserRequestDTO> getUser(@PathVariable int userId) {
         log.info("Request to get user with ID: {}", userId);
@@ -64,6 +73,7 @@ public class UserController {
                         .build());
     }
 
+    @Operation(summary = "Get all users", description = "API to get list of all users with pagination and email filter")
     @GetMapping("/list")
     @ResponseStatus(HttpStatus.OK)
     public ResponseData<List<UserRequestDTO>> getAllUsers(

@@ -26,6 +26,14 @@ spring:
     api-key: 261249265348835
     api-secret: XDlMaEdnkzcBV3PeiPn02QxNZrk
 
+
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
 open:
   api:
     title: API document
@@ -34,4 +42,36 @@ open:
     license: API License
     server:
       url: http://192.168.1.202:8080
-      description: Production server
+      description: Development server
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+
+open:
+  api:
+    title: API document
+    version: 1.0.0
+    description: API document
+    license: API License
+    server:
+      url: http://192.168.1.202:8081
+      description: Test server
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+open:
+  api:
+    title: API document
+    version: 1.0.0
+    description: API document
+    license: API License
+    server:
+      url: http://192.168.1.202:8082
+      description: Product server

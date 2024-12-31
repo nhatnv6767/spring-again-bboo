@@ -119,11 +119,11 @@ public class SearchRepository {
 
         // 2. get total number of records - paging
         List<User> users = getUsers(pageNo, pageSize, criteriaList, sortBy, address);
-        long totalElements = getTotalElements(criteriaList);
+        Long totalElements = getTotalElements(criteriaList);
         return PageResponse.builder()
-                .pageNo(pageNo)
+                .pageNo(pageNo) // offset: position of the first result, start from 0
                 .pageSize(pageSize)
-                .totalPages((int) Math.ceil((double) totalElements / pageSize))
+                .totalPages(totalElements.intValue())
                 .items(users)
                 .build();
     }
@@ -195,7 +195,7 @@ public class SearchRepository {
         return entityManager.createQuery(query).setFirstResult(pageNo).setMaxResults(pageSize).getResultList();
     }
 
-    private long getTotalElements(List<SearchCriteria> criteriaList) {
+    private Long getTotalElements(List<SearchCriteria> criteriaList) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
         Root<User> root = countQuery.from(User.class);

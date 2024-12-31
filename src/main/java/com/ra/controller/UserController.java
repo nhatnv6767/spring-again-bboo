@@ -43,7 +43,7 @@ public class UserController {
     @Operation(summary = "Update an existing user", description = "API to update an existing user")
     @PutMapping("/{userId}")
     public ResponseData<?> updateUser(@Valid @RequestBody UserRequestDTO userRequestDTO,
-            @Min(1) @PathVariable long userId) {
+                                      @Min(1) @PathVariable long userId) {
         log.info("Request to update user with ID {}: {}", userId, userRequestDTO);
         try {
             userService.updateUser(userId, userRequestDTO);
@@ -58,7 +58,7 @@ public class UserController {
     @Operation(summary = "Change user status", description = "API to change the status of an existing user")
     @PatchMapping("/{userId}")
     public ResponseData<?> changeStatus(@Min(1) @RequestParam(required = false) UserStatus status,
-            @Min(1) @PathVariable long userId) {
+                                        @Min(1) @PathVariable long userId) {
         log.info("Request to change status of user ID {} to {}", userId, status);
         try {
             userService.changeStatus(userId, status);
@@ -104,9 +104,11 @@ public class UserController {
     public ResponseData<List<UserDetailResponse>> getAllUsers(
             @RequestParam(required = false) String email,
             @RequestParam(defaultValue = "0") int pageNo,
-            @Min(10) @RequestParam(defaultValue = "10") int pageSize) {
-        log.info("Request to get all users with email: {}, pageNo: {}, pageSize: {}", email, pageNo, pageSize);
+            @Min(10) @RequestParam(defaultValue = "20") int pageSize,
+            @RequestParam(required = false) String sortBy
+    ) {
+        log.info("Request to get all users with email: {}, pageNo: {}, pageSize: {}, sortBy: {}", email, pageNo, pageSize, sortBy);
         return new ResponseData<>(HttpStatus.OK.value(), Translator.toLocale("user.getall.success"),
-                userService.getAllUsers(pageNo, pageSize));
+                userService.getAllUsers(pageNo, pageSize, sortBy));
     }
 }

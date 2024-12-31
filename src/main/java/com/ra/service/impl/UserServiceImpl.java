@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -111,12 +112,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDetailResponse> getAllUsers(int pageNo, int pageSize) {
+    public List<UserDetailResponse> getAllUsers(int pageNo, int pageSize, String sortBy) {
         int p = 0;
         if (pageNo > 0) {
             p = pageNo - 1;
         }
-        Pageable pageable = PageRequest.of(p, pageSize);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, sortBy));
         Page<User> users = userRepository.findAll(pageable);
 
         return users.stream().map(user -> UserDetailResponse.builder()

@@ -17,5 +17,5 @@ public interface UserService {
 
     UserDetailResponse getUser(long userId);
 
-    List<UserDetailResponse> getAllUsers(int pageNo, int pageSize);
+    List<UserDetailResponse> getAllUsers(int pageNo, int pageSize, String sortBy);
 }

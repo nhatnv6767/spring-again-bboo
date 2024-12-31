@@ -1,13 +1,19 @@
 package com.ra.repository;
 
 import com.ra.dto.response.PageResponse;
+import com.ra.model.User;
+import com.ra.repository.criteria.SearchCriteria;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -92,15 +98,41 @@ public class SearchRepository {
     }
 
     public PageResponse advanceSearchUser(int pageNo, int pageSize, String sortBy, String... search) {
+
+        List<SearchCriteria> criteriaList = new ArrayList<>();
+
         // 1. get list of users
         // firstName:T, lastName:T, ...
+        if (search != null) {
+            for (String s : search) {
+                // firstName:value
+                // group(1) = firstName
+                // group(2) = :
+                // group(3) = value
+                Pattern pattern = Pattern.compile("(\\w+?)(:|>|<)(.*)"); // : or > or <
+                Matcher matcher = pattern.matcher(s);
+                if (matcher.find()) {
+                    criteriaList.add(new SearchCriteria(matcher.group(1), matcher.group(2), matcher.group(3)));
+                }
+            }
+        }
 
         // 2. get total number of records - paging
+        List<User> users = getUsers(pageNo, pageSize, criteriaList, sortBy);
         return PageResponse.builder()
                 .pageNo(pageNo)
                 .pageSize(pageSize)
                 .totalPages(0)
                 .items(null)
                 .build();
+    }
+
+    private List<User> getUsers(int pageNo, int pageSize, List<SearchCriteria> criteriaList, String sortBy) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<User> query = criteriaBuilder.createQuery(User.class);
+        Root<User> root = query.from(User.class);
+
+        // process search criteria
+
     }
 }

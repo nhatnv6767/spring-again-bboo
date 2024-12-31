@@ -1,5 +1,6 @@
 package com.ra.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ra.util.Gender;
 import com.ra.util.UserStatus;
 import com.ra.util.UserType;
@@ -57,6 +58,7 @@ public class User extends AbstractEntity {
     @Column(name = "status")
     private UserStatus status = UserStatus.ACTIVE;
 
+    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "user")
     private Set<Address> addresses = new HashSet<>();
 

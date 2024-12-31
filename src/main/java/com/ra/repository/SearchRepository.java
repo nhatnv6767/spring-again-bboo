@@ -3,11 +3,13 @@ package com.ra.repository;
 import com.ra.dto.response.PageResponse;
 import com.ra.model.User;
 import com.ra.repository.criteria.SearchCriteria;
+import com.ra.repository.criteria.UserSearchCriteriaQueryConsumer;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
@@ -123,16 +125,52 @@ public class SearchRepository {
                 .pageNo(pageNo)
                 .pageSize(pageSize)
                 .totalPages(0)
-                .items(null)
+                .items(users)
                 .build();
     }
 
+    /**
+     * Hàm này dùng để tìm kiếm User theo nhiều tiêu chí (criteria) khác nhau
+     * <p>
+     * Ví dụ: Tìm kiếm user theo các điều kiện sau:
+     * - firstName:John -> tìm user có firstName = "John"
+     * - age>20 -> tìm user có tuổi lớn hơn 20
+     * - city:HaNoi -> tìm user ở thành phố Hà Nội
+     * <p>
+     * Giải thích chi tiết:
+     * 1. CriteriaBuilder: Là interface dùng để tạo các câu query, predicate,
+     * expression
+     * 2. CriteriaQuery: Đại diện cho câu query SELECT
+     * 3. Root: Đại diện cho entity gốc trong câu query (FROM User)
+     * 4. Predicate: Biểu thức điều kiện (WHERE)
+     * <p>
+     * Ví dụ cụ thể:
+     * Input: criteriaList = [
+     * {key: "firstName", operation: ":", value: "John"},
+     * {key: "age", operation: ">", value: "20"}
+     * ]
+     * <p>
+     * Sẽ tạo ra câu query tương đương:
+     * SELECT u FROM User u WHERE u.firstName = 'John' AND u.age > 20
+     *
+     * @param pageNo       số trang hiện tại
+     * @param pageSize     số lượng record mỗi trang
+     * @param criteriaList danh sách các tiêu chí tìm kiếm
+     * @param sortBy       trường để sắp xếp
+     * @return danh sách User thỏa mãn điều kiện
+     */
     private List<User> getUsers(int pageNo, int pageSize, List<SearchCriteria> criteriaList, String sortBy) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<User> query = criteriaBuilder.createQuery(User.class);
         Root<User> root = query.from(User.class);
 
         // process search criteria
-
+        Predicate predicate = criteriaBuilder.conjunction();
+        UserSearchCriteriaQueryConsumer queryConsumer = new UserSearchCriteriaQueryConsumer(criteriaBuilder, predicate,
+                root);
+        criteriaList.forEach(queryConsumer);
+        predicate = queryConsumer.getPredicate();
+        query.where(predicate);
+        return entityManager.createQuery(query).setFirstResult(pageNo).setMaxResults(pageSize).getResultList();
     }
 }

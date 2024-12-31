@@ -9,7 +9,7 @@ import java.util.Date;
 
 @Builder
 @Getter
-//@AllArgsConstructor
+@AllArgsConstructor
 public class UserDetailResponse implements Serializable {
     private Long id;
 
@@ -42,15 +42,4 @@ public class UserDetailResponse implements Serializable {
         this.username = username;
     }
 
-    public UserDetailResponse(Long id, String firstName, String lastName, String email, String phone, Date dateOfBirth, Gender gender, String username, UserStatus status) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.phone = phone;
-        this.dateOfBirth = dateOfBirth;
-        this.gender = gender;
-        this.username = username;
-        this.status = status;
-    }
 }

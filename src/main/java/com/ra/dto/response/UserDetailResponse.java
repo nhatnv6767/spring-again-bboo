@@ -31,7 +31,7 @@ public class UserDetailResponse implements Serializable {
 
     private UserStatus status;
 
-    public UserDetailResponse(Long id, String firstName, String lastName, String email, String phone, Date dateOfBirth, Gender gender) {
+    public UserDetailResponse(Long id, String firstName, String lastName, String email, String phone, Date dateOfBirth, Gender gender, String username) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -39,5 +39,6 @@ public class UserDetailResponse implements Serializable {
         this.phone = phone;
         this.dateOfBirth = dateOfBirth;
         this.gender = gender;
+        this.username = username;
     }
 }

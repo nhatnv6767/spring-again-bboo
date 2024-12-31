@@ -16,7 +16,7 @@ public class SearchRepository {
     private EntityManager entityManager;
 
     public PageResponse<?> getAllUsersWithSortByColumnAndSearch(int pageNo, int pageSize, String search,
-            String sortBy) {
+                                                                String sortBy) {
         // query list user
         StringBuilder sqlQuery = new StringBuilder("Select u from User u where 1=1");
         if (StringUtils.hasLength(search)) {
@@ -48,6 +48,27 @@ public class SearchRepository {
         System.out.println("users = " + users);
 
         // query num of record
-        return null;
+        StringBuilder sqlCountQuery = new StringBuilder("Select count(*) from User u where 1=1");
+        if (StringUtils.hasLength(search)) {
+            sqlCountQuery.append(" and lower(u.firstName) like lower(?1)");
+            sqlCountQuery.append(" or lower(u.lastName) like lower(?2)");
+            sqlCountQuery.append(" or lower(u.email) like lower(?3)");
+        }
+        Query selectCountQuery = entityManager.createQuery(sqlCountQuery.toString());
+
+        if (StringUtils.hasLength(search)) {
+            selectCountQuery.setParameter(1, String.format("%%%s%%", search));
+            selectCountQuery.setParameter(2, String.format("%%%s%%", search));
+            selectCountQuery.setParameter(3, String.format("%%%s%%", search));
+        }
+        Long totalElements = (Long) selectCountQuery.getSingleResult();
+        System.out.println(totalElements);
+
+        return PageResponse.builder()
+                .pageNo(pageNo)
+                .pageSize(pageSize)
+                .totalPages((int) Math.ceil(totalElements / pageSize))
+                .items(users)
+                .build();
     }
 }

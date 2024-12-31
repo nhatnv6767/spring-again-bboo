@@ -125,7 +125,7 @@ public class SearchRepository {
         return PageResponse.builder()
                 .pageNo(pageNo)
                 .pageSize(pageSize)
-                .totalPages((int) Math.ceil((double) totalElements / pageSize))
+                .totalPages((int) totalElements)
                 .items(users)
                 .build();
     }
@@ -172,6 +172,20 @@ public class SearchRepository {
         criteriaList.forEach(queryConsumer);
         predicate = queryConsumer.getPredicate();
         query.where(predicate);
+
+        // sort
+        if (StringUtils.hasLength(sortBy)) {
+            Pattern pattern = Pattern.compile("(\\w+?)(:)(asc|desc)");
+            Matcher matcher = pattern.matcher(sortBy);
+            if (matcher.find()) {
+                if (matcher.group(3).equalsIgnoreCase("asc")) {
+                    query.orderBy(criteriaBuilder.asc(root.get(matcher.group(1))));
+                } else if (matcher.group(3).equalsIgnoreCase("desc")) {
+                    query.orderBy(criteriaBuilder.desc(root.get(matcher.group(1))));
+                }
+            }
+        }
+
         return entityManager.createQuery(query).setFirstResult(pageNo).setMaxResults(pageSize).getResultList();
     }
 

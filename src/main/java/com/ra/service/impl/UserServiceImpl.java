@@ -116,10 +116,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDetailResponse> getAllUsers(int pageNo, int pageSize, String sortBy) {
-        int p = 0;
+    public List<UserDetailResponse> getAllUsersWithSortBy(int pageNo, int pageSize, String sortBy) {
+
         if (pageNo > 0) {
-            p = pageNo - 1;
+            pageNo = pageNo - 1;
         }
 
         List<Sort.Order> sorts = new ArrayList<>();
@@ -157,6 +157,46 @@ public class UserServiceImpl implements UserService {
                 .build()).toList();
     }
 
+    @Override
+    public List<UserDetailResponse> getAllUsersWithSortByMultipleColumn(int pageNo, int pageSize, String... sorts) {
+        if (pageNo > 0) {
+            pageNo = pageNo - 1;
+        }
+
+        List<Sort.Order> orders = new ArrayList<>();
+
+        for (String sortBy : sorts) {
+            // firstName:asc|desc
+//            Pattern pattern = Pattern.compile("^[a-zA-Z]+:(asc|desc)$");
+            Pattern pattern = Pattern.compile("(\\w+?)(:)(.*)");
+            Matcher matcher = pattern.matcher(sortBy);
+            if (matcher.find()) {
+                if (matcher.group(3).equalsIgnoreCase("asc")) {
+                    orders.add(new Sort.Order(Sort.Direction.ASC, matcher.group(1)));
+                } else if (matcher.group(3).equalsIgnoreCase("desc")) {
+                    orders.add(new Sort.Order(Sort.Direction.DESC, matcher.group(1)));
+                }
+            }
+        }
+
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(orders));
+        Page<User> users = userRepository.findAll(pageable);
+
+        return users.stream().map(user -> UserDetailResponse.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .dateOfBirth(user.getDateOfBirth())
+                .gender(user.getGender())
+                .username(user.getUsername())
+//                .type(user.getType().name())
+                .status(user.getStatus())
+                .build()).toList();
+    }
+
     private Set<Address> convertToAddress(Set<AddressDTO> addresses) {
         Set<Address> result = new HashSet<>();
         addresses.forEach(a ->
@@ -177,5 +217,6 @@ public class UserServiceImpl implements UserService {
     private User getUserById(long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException(Translator.toLocale("user.not.found")));
     }
+
 
 }

@@ -109,6 +109,20 @@ public class UserController {
     ) {
         log.info("Request to get all users with email: {}, pageNo: {}, pageSize: {}, sortBy: {}", email, pageNo, pageSize, sortBy);
         return new ResponseData<>(HttpStatus.OK.value(), Translator.toLocale("user.getall.success"),
-                userService.getAllUsers(pageNo, pageSize, sortBy));
+                userService.getAllUsersWithSortBy(pageNo, pageSize, sortBy));
+    }
+
+
+    @Operation(summary = "Get all users with multiple columns", description = "API to get list of all users with pagination and sorting by multiple columns")
+    @GetMapping("/list-multiple")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseData<List<UserDetailResponse>> getAllUsersWithSortByMultipleColumn(
+            @RequestParam(defaultValue = "0") int pageNo,
+            @Min(10) @RequestParam(defaultValue = "20") int pageSize,
+            @RequestParam(required = false) String... sorts
+    ) {
+        log.info("Request to get all users with multiple columns pageNo: {}, pageSize: {}, sortBy: {}", pageNo, pageSize, sorts);
+        return new ResponseData<>(HttpStatus.OK.value(), Translator.toLocale("user.getall.success"),
+                userService.getAllUsersWithSortByMultipleColumn(pageNo, pageSize, sorts));
     }
 }

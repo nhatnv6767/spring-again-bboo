@@ -17,5 +17,7 @@ public interface UserService {
 
     UserDetailResponse getUser(long userId);
 
-    List<UserDetailResponse> getAllUsers(int pageNo, int pageSize, String sortBy);
+    List<UserDetailResponse> getAllUsersWithSortBy(int pageNo, int pageSize, String sortBy);
+
+    List<UserDetailResponse> getAllUsersWithSortByMultipleColumn(int pageNo, int pageSize, String... sorts); // List<String>
 }

@@ -123,7 +123,7 @@ public class SearchRepository {
         return PageResponse.builder()
                 .pageNo(pageNo)
                 .pageSize(pageSize)
-                .totalPages((int) totalElements)
+                .totalPages((int) Math.ceil((double) totalElements / pageSize))
                 .items(users)
                 .build();
     }
@@ -171,13 +171,14 @@ public class SearchRepository {
         if (StringUtils.hasLength(address)) {
             Join<Address, User> addressUserJoin = root.join("addresses", JoinType.INNER);
             Predicate addressPredicate = criteriaBuilder.like(addressUserJoin.get("city"), "%" + address + "%");
+            // TODO: search all filed of Address
             query.where(predicate, addressPredicate);
         } else {
             criteriaList.forEach(queryConsumer);
             predicate = queryConsumer.getPredicate();
             query.where(predicate);
         }
-        
+
         // sort
         if (StringUtils.hasLength(sortBy)) {
             Pattern pattern = Pattern.compile("(\\w+?)(:)(asc|desc)");

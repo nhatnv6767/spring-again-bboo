@@ -105,21 +105,31 @@ public class UserServiceImpl implements UserService {
                 .phone(user.getPhone())
                 .email(user.getEmail())
                 .username(user.getUsername())
-                .type(user.getType().name())
+//                .type(user.getType().name())
                 .status(user.getStatus())
                 .build();
     }
 
     @Override
     public List<UserDetailResponse> getAllUsers(int pageNo, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        int p = 0;
+        if (pageNo > 0) {
+            p = pageNo - 1;
+        }
+        Pageable pageable = PageRequest.of(p, pageSize);
         Page<User> users = userRepository.findAll(pageable);
 
         return users.stream().map(user -> UserDetailResponse.builder()
+                .id(user.getId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .phone(user.getPhone())
+                .dateOfBirth(user.getDateOfBirth())
+                .gender(user.getGender())
+                .username(user.getUsername())
+//                .type(user.getType().name())
+                .status(user.getStatus())
                 .build()).toList();
     }
 

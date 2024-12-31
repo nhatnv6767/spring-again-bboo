@@ -18,10 +18,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -117,7 +121,26 @@ public class UserServiceImpl implements UserService {
         if (pageNo > 0) {
             p = pageNo - 1;
         }
-        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, sortBy));
+
+        List<Sort.Order> sorts = new ArrayList<>();
+
+        // neu co gia tri
+        if (StringUtils.hasLength(sortBy)) {
+            // firstName:asc|desc
+//            Pattern pattern = Pattern.compile("^[a-zA-Z]+:(asc|desc)$");
+            Pattern pattern = Pattern.compile("(\\w+?)(:)(.*)");
+            Matcher matcher = pattern.matcher(sortBy);
+            if (matcher.find()) {
+                if (matcher.group(3).equalsIgnoreCase("asc")) {
+                    sorts.add(new Sort.Order(Sort.Direction.ASC, matcher.group(1)));
+                } else if (matcher.group(3).equalsIgnoreCase("desc")) {
+                    sorts.add(new Sort.Order(Sort.Direction.DESC, matcher.group(1)));
+                }
+            }
+        }
+
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sorts));
         Page<User> users = userRepository.findAll(pageable);
 
         return users.stream().map(user -> UserDetailResponse.builder()

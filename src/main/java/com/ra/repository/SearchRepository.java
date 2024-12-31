@@ -19,7 +19,7 @@ public class SearchRepository {
     private EntityManager entityManager;
 
     public PageResponse<?> getAllUsersWithSortByColumnAndSearch(int pageNo, int pageSize, String search,
-                                                                String sortBy) {
+            String sortBy) {
         // query list user
         StringBuilder sqlQuery = new StringBuilder(
                 "Select new com.ra.dto.response.UserDetailResponse(u.id, u.firstName, u.lastName, u.email, u.phone, u.dateOfBirth, u.gender, u.username) from User u where 1=1");
@@ -34,10 +34,9 @@ public class SearchRepository {
             Pattern pattern = Pattern.compile("(\\w+?)(:)(.*)");
             Matcher matcher = pattern.matcher(sortBy);
             if (matcher.find()) {
-                if (matcher.group(3).equalsIgnoreCase("asc")) {
-                    sqlQuery.append(String.format(" order by u.%s %s", matcher.group(1), matcher.group(3)));
-                } else if (matcher.group(3).equalsIgnoreCase("desc")) {
-                    sqlQuery.append(String.format(" order by u.%s %s", matcher.group(1), matcher.group(3)));
+                String direction = matcher.group(3).toLowerCase();
+                if (direction.equals("asc") || direction.equals("desc")) {
+                    sqlQuery.append(String.format(" order by u.%s %s", matcher.group(1), direction));
                 }
             }
 
@@ -81,7 +80,6 @@ public class SearchRepository {
         }
         Long totalElements = (Long) selectCountQuery.getSingleResult();
         System.out.println(totalElements);
-
 
         Page<?> page = new PageImpl<Object>(users, PageRequest.of(pageNo, pageSize), totalElements);
 

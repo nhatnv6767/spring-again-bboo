@@ -4,13 +4,13 @@ import com.ra.dto.response.PageResponse;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Repository
 public class SearchRepository {
@@ -67,8 +67,24 @@ public class SearchRepository {
         }
         Long totalElements = (Long) selectCountQuery.getSingleResult();
         System.out.println(totalElements);
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
 
-        Page<?> page = new PageImpl<Object>(users, PageRequest.of(pageNo, pageSize), totalElements);
+        if (StringUtils.hasLength(sortBy)) {
+            // firstName:asc|desc
+            // Pattern pattern = Pattern.compile("^[a-zA-Z]+:(asc|desc)$");
+            Pattern pattern = Pattern.compile("(\\w+?)(:)(.*)");
+            Matcher matcher = pattern.matcher(sortBy);
+            if (matcher.find()) {
+                if (matcher.group(3).equalsIgnoreCase("asc")) {
+                    pageable = PageRequest.of(pageNo, pageSize, Sort.by(new Sort.Order(Sort.Direction.ASC, matcher.group(1))));
+                } else if (matcher.group(3).equalsIgnoreCase("desc")) {
+                    pageable = PageRequest.of(pageNo, pageSize, Sort.by(new Sort.Order(Sort.Direction.DESC, matcher.group(1))));
+                }
+            }
+        }
+
+
+        Page<?> page = new PageImpl<Object>(users, pageable, totalElements);
 
         return PageResponse.builder()
                 .pageNo(pageNo)

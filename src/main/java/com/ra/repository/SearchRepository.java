@@ -21,7 +21,7 @@ public class SearchRepository {
     public PageResponse<?> getAllUsersWithSortByColumnAndSearch(int pageNo, int pageSize, String search,
                                                                 String sortBy) {
         // query list user
-        StringBuilder sqlQuery = new StringBuilder("Select u from User u where 1=1");
+        StringBuilder sqlQuery = new StringBuilder("Select new com.ra.dto.response.UserDetailResponse(u.id, u.firstName, u.lastName) from User u where 1=1");
         if (StringUtils.hasLength(search)) {
             sqlQuery.append(" and lower(u.firstName) like lower(:firstName)");
             sqlQuery.append(" or lower(u.lastName) like lower(:lastName)");

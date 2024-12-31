@@ -35,9 +35,9 @@ public class SearchRepository {
             Matcher matcher = pattern.matcher(sortBy);
             if (matcher.find()) {
                 if (matcher.group(3).equalsIgnoreCase("asc")) {
-                    sqlQuery.append(" order by u." + matcher.group(1) + " asc");
+                    sqlQuery.append(String.format(" order by u.%s %s", matcher.group(1), matcher.group(3)));
                 } else if (matcher.group(3).equalsIgnoreCase("desc")) {
-                    sqlQuery.append(" order by u." + matcher.group(1) + " desc");
+                    sqlQuery.append(String.format(" order by u.%s %s", matcher.group(1), matcher.group(3)));
                 }
             }
 

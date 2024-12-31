@@ -39,7 +39,6 @@ public class UserServiceImpl implements UserService {
                 .password(requestDTO.getPassword())
                 .status(requestDTO.getStatus())
                 .type(UserType.valueOf(requestDTO.getType().toUpperCase()))
-                .addresses(convertToAddress(requestDTO.getAddresses()))
                 .build();
         requestDTO.getAddresses().forEach(a ->
                 user.saveAddress(Address.builder()

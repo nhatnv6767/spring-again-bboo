@@ -3,6 +3,7 @@ package com.ra.service.impl;
 import com.ra.configuration.Translator;
 import com.ra.dto.request.AddressDTO;
 import com.ra.dto.request.UserRequestDTO;
+import com.ra.dto.response.PageResponse;
 import com.ra.dto.response.UserDetailResponse;
 import com.ra.exception.ResourceNotFoundException;
 import com.ra.model.Address;
@@ -116,10 +117,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDetailResponse> getAllUsersWithSortBy(int pageNo, int pageSize, String sortBy) {
-
+    public PageResponse<?> getAllUsersWithSortBy(int pageNo, int pageSize, String sortBy) {
+        int page = 0;
         if (pageNo > 0) {
-            pageNo = pageNo - 1;
+            page = pageNo - 1;
         }
 
         List<Sort.Order> sorts = new ArrayList<>();
@@ -140,10 +141,10 @@ public class UserServiceImpl implements UserService {
         }
 
 
-        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sorts));
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(sorts));
         Page<User> users = userRepository.findAll(pageable);
 
-        return users.stream().map(user -> UserDetailResponse.builder()
+        List<UserDetailResponse> response = users.stream().map(user -> UserDetailResponse.builder()
                 .id(user.getId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
@@ -155,10 +156,17 @@ public class UserServiceImpl implements UserService {
 //                .type(user.getType().name())
                 .status(user.getStatus())
                 .build()).toList();
+
+        return PageResponse.builder()
+                .pageNo(pageNo)
+                .pageSize(pageSize)
+                .totalPages(users.getTotalPages())
+                .items(response)
+                .build();
     }
 
     @Override
-    public List<UserDetailResponse> getAllUsersWithSortByMultipleColumn(int pageNo, int pageSize, String... sorts) {
+    public PageResponse<?> getAllUsersWithSortByMultipleColumn(int pageNo, int pageSize, String... sorts) {
         if (pageNo > 0) {
             pageNo = pageNo - 1;
         }
@@ -183,7 +191,7 @@ public class UserServiceImpl implements UserService {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(orders));
         Page<User> users = userRepository.findAll(pageable);
 
-        return users.stream().map(user -> UserDetailResponse.builder()
+        List<UserDetailResponse> response = users.stream().map(user -> UserDetailResponse.builder()
                 .id(user.getId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
@@ -195,6 +203,14 @@ public class UserServiceImpl implements UserService {
 //                .type(user.getType().name())
                 .status(user.getStatus())
                 .build()).toList();
+
+        return PageResponse.builder()
+                .pageNo(pageNo)
+                .pageSize(pageSize)
+                .totalPages(users.getTotalPages())
+                .items(response)
+                .build();
+
     }
 
     private Set<Address> convertToAddress(Set<AddressDTO> addresses) {

@@ -1,10 +1,9 @@
 package com.ra.service;
 
 import com.ra.dto.request.UserRequestDTO;
+import com.ra.dto.response.PageResponse;
 import com.ra.dto.response.UserDetailResponse;
 import com.ra.util.UserStatus;
-
-import java.util.List;
 
 public interface UserService {
     long saveUser(UserRequestDTO requestDTO);
@@ -17,7 +16,7 @@ public interface UserService {
 
     UserDetailResponse getUser(long userId);
 
-    List<UserDetailResponse> getAllUsersWithSortBy(int pageNo, int pageSize, String sortBy);
+    PageResponse<?> getAllUsersWithSortBy(int pageNo, int pageSize, String sortBy);
 
-    List<UserDetailResponse> getAllUsersWithSortByMultipleColumn(int pageNo, int pageSize, String... sorts); // List<String>
+    PageResponse<?> getAllUsersWithSortByMultipleColumn(int pageNo, int pageSize, String... sorts); // List<String>
 }

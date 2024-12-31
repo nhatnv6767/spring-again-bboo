@@ -18,8 +18,8 @@ public class SearchRepository {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public PageResponse<?> getAllUsersWithSortByColumnAndSearch(int pageNo, int pageSize, String search,
-                                                                String sortBy) {
+    public PageResponse<?> searchUsers(int pageNo, int pageSize, String search,
+                                       String sortBy) {
         // query list user
         StringBuilder sqlQuery = new StringBuilder(
                 "Select new com.ra.dto.response.UserDetailResponse(u.id, u.firstName, u.lastName, u.email, u.phone, u.dateOfBirth, u.gender, u.username) from User u where 1=1");
@@ -88,6 +88,19 @@ public class SearchRepository {
                 .pageSize(pageSize)
                 .totalPages(page.getTotalPages())
                 .items(page.stream().toList())
+                .build();
+    }
+
+    public PageResponse advanceSearchUser(int pageNo, int pageSize, String sortBy, String... search) {
+        // 1. get list of users
+        // firstName:T, lastName:T, ...
+
+        // 2. get total number of records - paging
+        return PageResponse.builder()
+                .pageNo(pageNo)
+                .pageSize(pageSize)
+                .totalPages(0)
+                .items(null)
                 .build();
     }
 }

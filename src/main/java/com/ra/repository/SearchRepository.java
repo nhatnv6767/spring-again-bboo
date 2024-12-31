@@ -28,6 +28,20 @@ public class SearchRepository {
             sqlQuery.append(" or lower(u.lastName) like lower(:lastName)");
             sqlQuery.append(" or lower(u.email) like lower(:email)");
         }
+
+        if (StringUtils.hasLength(sortBy)) {
+
+            Pattern pattern = Pattern.compile("(\\w+?)(:)(.*)");
+            Matcher matcher = pattern.matcher(sortBy);
+            if (matcher.find()) {
+                if (matcher.group(3).equalsIgnoreCase("asc")) {
+                    sqlQuery.append(" order by u." + matcher.group(1) + " asc");
+                } else if (matcher.group(3).equalsIgnoreCase("desc")) {
+                    sqlQuery.append(" order by u." + matcher.group(1) + " desc");
+                }
+            }
+
+        }
         Query selectQuery = entityManager.createQuery(sqlQuery.toString());
         selectQuery.setFirstResult(pageNo);
         selectQuery.setMaxResults(pageSize);
@@ -67,24 +81,9 @@ public class SearchRepository {
         }
         Long totalElements = (Long) selectCountQuery.getSingleResult();
         System.out.println(totalElements);
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-
-        if (StringUtils.hasLength(sortBy)) {
-            // firstName:asc|desc
-            // Pattern pattern = Pattern.compile("^[a-zA-Z]+:(asc|desc)$");
-            Pattern pattern = Pattern.compile("(\\w+?)(:)(.*)");
-            Matcher matcher = pattern.matcher(sortBy);
-            if (matcher.find()) {
-                if (matcher.group(3).equalsIgnoreCase("asc")) {
-                    pageable = PageRequest.of(pageNo, pageSize, Sort.by(new Sort.Order(Sort.Direction.ASC, matcher.group(1))));
-                } else if (matcher.group(3).equalsIgnoreCase("desc")) {
-                    pageable = PageRequest.of(pageNo, pageSize, Sort.by(new Sort.Order(Sort.Direction.DESC, matcher.group(1))));
-                }
-            }
-        }
 
 
-        Page<?> page = new PageImpl<Object>(users, pageable, totalElements);
+        Page<?> page = new PageImpl<Object>(users, PageRequest.of(pageNo, pageSize), totalElements);
 
         return PageResponse.builder()
                 .pageNo(pageNo)

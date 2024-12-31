@@ -22,14 +22,14 @@ public class UserSearchCriteriaQueryConsumer implements Consumer<SearchCriteria>
     @Override
     public void accept(SearchCriteria param) {
         if (param.getOperation().equals(">")) {
-            builder.and(predicate, builder.greaterThanOrEqualTo(root.get(param.getKey()), param.getValue().toString()));
+            predicate = builder.and(predicate, builder.greaterThanOrEqualTo(root.get(param.getKey()), param.getValue().toString()));
         } else if (param.getOperation().equals("<")) {
-            builder.and(predicate, builder.lessThanOrEqualTo(root.get(param.getKey()), param.getValue().toString()));
+            predicate = builder.and(predicate, builder.lessThanOrEqualTo(root.get(param.getKey()), param.getValue().toString()));
         } else { // : => equal
             if (root.get(param.getKey()).getJavaType() == String.class) {
-                builder.and(predicate, builder.like(root.get(param.getKey()), "%" + param.getValue().toString() + "%"));
+                predicate = builder.and(predicate, builder.like(root.get(param.getKey()), "%" + param.getValue().toString() + "%"));
             } else {
-                builder.and(predicate, builder.equal(root.get(param.getKey()), param.getValue().toString()));
+                predicate = builder.and(predicate, builder.equal(root.get(param.getKey()), param.getValue().toString()));
             }
         }
     }

@@ -111,7 +111,7 @@ public class SearchRepository {
                 // group(1) = firstName
                 // group(2) = :
                 // group(3) = value
-                Pattern pattern = Pattern.compile("(\\w+?)(:|>|<)(.*)"); // : or > or <
+                Pattern pattern = Pattern.compile("(\\w+?)([:><])(.*)"); // : or > or <
                 Matcher matcher = pattern.matcher(s);
                 if (matcher.find()) {
                     criteriaList.add(new SearchCriteria(matcher.group(1), matcher.group(2), matcher.group(3)));
@@ -121,10 +121,11 @@ public class SearchRepository {
 
         // 2. get total number of records - paging
         List<User> users = getUsers(pageNo, pageSize, criteriaList, sortBy);
+        long totalElements = getTotalElements(criteriaList);
         return PageResponse.builder()
                 .pageNo(pageNo)
                 .pageSize(pageSize)
-                .totalPages(0)
+                .totalPages((int) Math.ceil((double) totalElements / pageSize))
                 .items(users)
                 .build();
     }
@@ -172,5 +173,19 @@ public class SearchRepository {
         predicate = queryConsumer.getPredicate();
         query.where(predicate);
         return entityManager.createQuery(query).setFirstResult(pageNo).setMaxResults(pageSize).getResultList();
+    }
+
+    private long getTotalElements(List<SearchCriteria> criteriaList) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
+        Root<User> root = countQuery.from(User.class);
+
+        Predicate predicate = criteriaBuilder.conjunction();
+        UserSearchCriteriaQueryConsumer queryConsumer = new UserSearchCriteriaQueryConsumer(criteriaBuilder, predicate, root);
+        criteriaList.forEach(queryConsumer);
+        predicate = queryConsumer.getPredicate();
+        countQuery.select(criteriaBuilder.count(root)).where(predicate);
+
+        return entityManager.createQuery(countQuery).getSingleResult();
     }
 }

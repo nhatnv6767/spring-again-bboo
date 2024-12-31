@@ -8,6 +8,7 @@ import com.ra.dto.response.UserDetailResponse;
 import com.ra.exception.ResourceNotFoundException;
 import com.ra.model.Address;
 import com.ra.model.User;
+import com.ra.repository.SearchRepository;
 import com.ra.repository.UserRepository;
 import com.ra.service.UserService;
 import com.ra.util.UserStatus;
@@ -34,6 +35,7 @@ import java.util.regex.Pattern;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final SearchRepository searchRepository;
 
     @Override
     public long saveUser(UserRequestDTO requestDTO) {
@@ -46,20 +48,19 @@ public class UserServiceImpl implements UserService {
                 .email(requestDTO.getEmail())
                 .username(requestDTO.getUsername())
                 .password(requestDTO.getPassword())
-                .status(requestDTO.getStatus())
+                .status(UserStatus.valueOf(requestDTO.getStatus().name()))
                 .type(UserType.valueOf(requestDTO.getType().toUpperCase()))
                 .build();
-        requestDTO.getAddresses().forEach(a ->
-                user.saveAddress(Address.builder()
-                        .apartmentNumber(a.getApartmentNumber())
-                        .floor(a.getFloor())
-                        .building(a.getBuilding())
-                        .streetNumber(a.getStreetNumber())
-                        .street(a.getStreet())
-                        .city(a.getCity())
-                        .country(a.getCountry())
-                        .addressType(a.getAddressType())
-                        .build()));
+        requestDTO.getAddresses().forEach(a -> user.saveAddress(Address.builder()
+                .apartmentNumber(a.getApartmentNumber())
+                .floor(a.getFloor())
+                .building(a.getBuilding())
+                .streetNumber(a.getStreetNumber())
+                .street(a.getStreet())
+                .city(a.getCity())
+                .country(a.getCountry())
+                .addressType(a.getAddressType())
+                .build()));
         userRepository.save(user);
         log.info("User saved successfully");
         return user.getId();
@@ -111,7 +112,7 @@ public class UserServiceImpl implements UserService {
                 .phone(user.getPhone())
                 .email(user.getEmail())
                 .username(user.getUsername())
-//                .type(user.getType().name())
+                // .type(user.getType().name())
                 .status(user.getStatus())
                 .build();
     }
@@ -128,7 +129,7 @@ public class UserServiceImpl implements UserService {
         // neu co gia tri
         if (StringUtils.hasLength(sortBy)) {
             // firstName:asc|desc
-//            Pattern pattern = Pattern.compile("^[a-zA-Z]+:(asc|desc)$");
+            // Pattern pattern = Pattern.compile("^[a-zA-Z]+:(asc|desc)$");
             Pattern pattern = Pattern.compile("(\\w+?)(:)(.*)");
             Matcher matcher = pattern.matcher(sortBy);
             if (matcher.find()) {
@@ -139,7 +140,6 @@ public class UserServiceImpl implements UserService {
                 }
             }
         }
-
 
         Pageable pageable = PageRequest.of(page, pageSize, Sort.by(sorts));
         Page<User> users = userRepository.findAll(pageable);
@@ -153,7 +153,7 @@ public class UserServiceImpl implements UserService {
                 .dateOfBirth(user.getDateOfBirth())
                 .gender(user.getGender())
                 .username(user.getUsername())
-//                .type(user.getType().name())
+                // .type(user.getType().name())
                 .status(user.getStatus())
                 .build()).toList();
 
@@ -166,7 +166,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PageResponse<?> getAllUsersWithSortByMultipleColumn(int pageNo, int pageSize, String... sorts) {
+    public PageResponse<?> getAllUsersWithSortByMultipleColumns(int pageNo, int pageSize, String... sorts) {
         if (pageNo > 0) {
             pageNo = pageNo - 1;
         }
@@ -175,7 +175,7 @@ public class UserServiceImpl implements UserService {
 
         for (String sortBy : sorts) {
             // firstName:asc|desc
-//            Pattern pattern = Pattern.compile("^[a-zA-Z]+:(asc|desc)$");
+            // Pattern pattern = Pattern.compile("^[a-zA-Z]+:(asc|desc)$");
             Pattern pattern = Pattern.compile("(\\w+?)(:)(.*)");
             Matcher matcher = pattern.matcher(sortBy);
             if (matcher.find()) {
@@ -186,7 +186,6 @@ public class UserServiceImpl implements UserService {
                 }
             }
         }
-
 
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(orders));
         Page<User> users = userRepository.findAll(pageable);
@@ -200,7 +199,7 @@ public class UserServiceImpl implements UserService {
                 .dateOfBirth(user.getDateOfBirth())
                 .gender(user.getGender())
                 .username(user.getUsername())
-//                .type(user.getType().name())
+                // .type(user.getType().name())
                 .status(user.getStatus())
                 .build()).toList();
 
@@ -213,26 +212,35 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @Override
+    public PageResponse<?> getAllUsersWithSortByColumnAndSearch(int pageNo, int pageSize, String search,
+                                                                String sortBy) {
+        return searchRepository.searchUsers(pageNo, pageSize, search, sortBy);
+    }
+
+    @Override
+    public PageResponse<?> advanceSearchByCriteria(int pageNo, int pageSize, String sortBy, String... search) {
+        return searchRepository.advanceSearchUser(pageNo, pageSize, sortBy, search);
+    }
+
     private Set<Address> convertToAddress(Set<AddressDTO> addresses) {
         Set<Address> result = new HashSet<>();
-        addresses.forEach(a ->
-                result.add(Address.builder()
-                        .apartmentNumber(a.getApartmentNumber())
-                        .floor(a.getFloor())
-                        .building(a.getBuilding())
-                        .streetNumber(a.getStreetNumber())
-                        .street(a.getStreet())
-                        .city(a.getCity())
-                        .country(a.getCountry())
-                        .addressType(a.getAddressType())
-                        .build())
-        );
+        addresses.forEach(a -> result.add(Address.builder()
+                .apartmentNumber(a.getApartmentNumber())
+                .floor(a.getFloor())
+                .building(a.getBuilding())
+                .streetNumber(a.getStreetNumber())
+                .street(a.getStreet())
+                .city(a.getCity())
+                .country(a.getCountry())
+                .addressType(a.getAddressType())
+                .build()));
         return result;
     }
 
     private User getUserById(long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException(Translator.toLocale("user.not.found")));
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(Translator.toLocale("user.not.found")));
     }
-
 
 }

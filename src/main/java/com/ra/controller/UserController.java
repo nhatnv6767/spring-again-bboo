@@ -15,8 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
@@ -123,6 +121,35 @@ public class UserController {
     ) {
         log.info("Request to get all users with multiple columns pageNo: {}, pageSize: {}, sortBy: {}", pageNo, pageSize, sorts);
         return new ResponseData<>(HttpStatus.OK.value(), Translator.toLocale("user.getall.success"),
-                userService.getAllUsersWithSortByMultipleColumn(pageNo, pageSize, sorts));
+                userService.getAllUsersWithSortByMultipleColumns(pageNo, pageSize, sorts));
+    }
+
+    @Operation(summary = "Get all users with search", description = "API to get list of all users with pagination and search")
+    @GetMapping("/search")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseData<?> getAllUsersWithSearch(
+            @RequestParam(defaultValue = "0") int pageNo,
+            @Min(1) @RequestParam(defaultValue = "20") int pageSize,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String sortBy
+    ) {
+        log.info("Request to get all users with search: {}, pageNo: {}, pageSize: {}, sortBy: {}", search, pageNo, pageSize, sortBy);
+        return new ResponseData<>(HttpStatus.OK.value(), Translator.toLocale("user.getall.success"),
+                userService.getAllUsersWithSortByColumnAndSearch(pageNo, pageSize, search, sortBy));
+    }
+
+    // Spring Data JPA - Criteria - Search
+    @Operation(summary = "Get all users with search using Criteria", description = "API to get list of all users with pagination and search using Criteria")
+    @GetMapping("/search-criteria")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseData<?> advanceSearchByCriteria(
+            @RequestParam(defaultValue = "0") int pageNo,
+            @Min(1) @RequestParam(defaultValue = "20") int pageSize,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String... search
+    ) {
+        log.info("Request to get all users with search using Criteria: {}, pageNo: {}, pageSize: {}, sortBy: {}", search, pageNo, pageSize, sortBy);
+        return new ResponseData<>(HttpStatus.OK.value(), Translator.toLocale("user.getall.success"),
+                userService.advanceSearchByCriteria(pageNo, pageSize, search, sortBy));
     }
 }

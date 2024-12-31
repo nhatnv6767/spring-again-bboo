@@ -59,7 +59,7 @@ public class UserRequestDTO implements Serializable {
     @JsonFormat(pattern = "MM/dd/yyyy")
     private Date dateOfBirth;
 
-    @GenderSubset(anyOf = {MALE, FEMALE, OTHER})
+    @GenderSubset(anyOf = { MALE, FEMALE, OTHER })
     private Gender gender;
 
     @NotNull(message = "username must be not null")
@@ -72,7 +72,8 @@ public class UserRequestDTO implements Serializable {
     @EnumValue(name = "type", enumClass = UserType.class)
     private String type;
 
-    @EnumPattern(name = "status", regexp = "ACTIVE|INACTIVE|NONE")
+    @NotNull(message = "status must be not null")
+    @EnumValue(name = "status", enumClass = UserStatus.class)
     private UserStatus status;
 
     @NotEmpty(message = "addresses can not empty")

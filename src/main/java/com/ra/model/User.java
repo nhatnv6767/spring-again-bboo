@@ -17,7 +17,8 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "tbl_user")
+@Entity(name = "User")
+@Table(name = "tbl_user")
 public class User extends AbstractEntity {
     @Column(name = "first_name")
     private String firstName;
@@ -32,7 +33,7 @@ public class User extends AbstractEntity {
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "gender")
-    private Gender gender;
+    private Gender gender = Gender.OTHER;
 
     @Column(name = "phone")
     private String phone;
@@ -49,12 +50,12 @@ public class User extends AbstractEntity {
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "type")
-    private UserType type;
+    private UserType type = UserType.USER;
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "status")
-    private UserStatus status;
+    private UserStatus status = UserStatus.ACTIVE;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "user")
     private Set<Address> addresses = new HashSet<>();

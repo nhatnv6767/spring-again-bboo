@@ -4,6 +4,9 @@ import com.ra.dto.response.PageResponse;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
@@ -64,11 +67,13 @@ public class SearchRepository {
         Long totalElements = (Long) selectCountQuery.getSingleResult();
         System.out.println(totalElements);
 
+        Page<?> page = new PageImpl<Object>(users, PageRequest.of(pageNo, pageSize), totalElements);
+
         return PageResponse.builder()
                 .pageNo(pageNo)
                 .pageSize(pageSize)
-                .totalPages((int) Math.ceil(totalElements / pageSize))
-                .items(users)
+                .totalPages(page.getTotalPages())
+                .items(page.stream().toList())
                 .build();
     }
 }

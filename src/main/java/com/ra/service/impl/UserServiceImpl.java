@@ -13,6 +13,9 @@ import com.ra.util.UserStatus;
 import com.ra.util.UserType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -109,7 +112,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDetailResponse> getAllUsers(int pageNo, int pageSize) {
-        return List.of();
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<User> users = userRepository.findAll(pageable);
+
+        return users.stream().map(user -> UserDetailResponse.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .build()).toList();
     }
 
     private Set<Address> convertToAddress(Set<AddressDTO> addresses) {

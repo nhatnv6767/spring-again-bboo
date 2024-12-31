@@ -38,7 +38,7 @@ public class UserController {
         }
     }
 
-//    @Operation(summary = "Update an existing user", description = "API to update an existing user")
+    //    @Operation(summary = "Update an existing user", description = "API to update an existing user")
 //    @PutMapping("/{userId}")
 //    public ResponseData<?> updateUser(@Valid @RequestBody UserRequestDTO userRequestDTO,
 //                                      @Min(1) @PathVariable int userId) {
@@ -74,27 +74,15 @@ public class UserController {
 //                        .build());
 //    }
 //
-//    @Operation(summary = "Get all users", description = "API to get list of all users with pagination and email filter")
-//    @GetMapping("/list")
-//    @ResponseStatus(HttpStatus.OK)
-//    public ResponseData<List<UserRequestDTO>> getAllUsers(
-//            @RequestParam(required = false) String email,
-//            @RequestParam(defaultValue = "0") int pageNo,
-//            @Min(10) @RequestParam(defaultValue = "10") int pageSize) {
-//        log.info("Request to get all users with email: {}, pageNo: {}, pageSize: {}", email, pageNo, pageSize);
-//        return new ResponseData<>(HttpStatus.OK.value(), Translator.toLocale("user.getall.success"),
-//                List.of(
-//                        UserRequestDTO.builder()
-//                                .firstName("John")
-//                                .lastName("Doe")
-//                                .email("john.doe@example.com")
-//                                .phone("1234567890")
-//                                .build(),
-//                        UserRequestDTO.builder()
-//                                .firstName("Jane")
-//                                .lastName("Smith")
-//                                .email("jane.smith@example.com")
-//                                .phone("9876543210")
-//                                .build()));
-//    }
+    @Operation(summary = "Get all users", description = "API to get list of all users with pagination and email filter")
+    @GetMapping("/list")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseData<List<UserDetailResponse>> getAllUsers(
+            @RequestParam(required = false) String email,
+            @RequestParam(defaultValue = "0") int pageNo,
+            @Min(10) @RequestParam(defaultValue = "10") int pageSize) {
+        log.info("Request to get all users with email: {}, pageNo: {}, pageSize: {}", email, pageNo, pageSize);
+        return new ResponseData<>(HttpStatus.OK.value(), Translator.toLocale("user.getall.success"),
+                userService.getAllUsers(pageNo, pageSize));
+    }
 }

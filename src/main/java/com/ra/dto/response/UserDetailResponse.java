@@ -31,9 +31,13 @@ public class UserDetailResponse implements Serializable {
 
     private UserStatus status;
 
-    public UserDetailResponse(Long id, String firstName, String lastName) {
+    public UserDetailResponse(Long id, String firstName, String lastName, String email, String phone, Date dateOfBirth, Gender gender) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.email = email;
+        this.phone = phone;
+        this.dateOfBirth = dateOfBirth;
+        this.gender = gender;
     }
 }

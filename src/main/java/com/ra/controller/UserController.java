@@ -15,8 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
@@ -123,6 +121,6 @@ public class UserController {
     ) {
         log.info("Request to get all users with multiple columns pageNo: {}, pageSize: {}, sortBy: {}", pageNo, pageSize, sorts);
         return new ResponseData<>(HttpStatus.OK.value(), Translator.toLocale("user.getall.success"),
-                userService.getAllUsersWithSortByMultipleColumn(pageNo, pageSize, sorts));
+                userService.getAllUsersWithSortByMultipleColumns(pageNo, pageSize, sorts));
     }
 }

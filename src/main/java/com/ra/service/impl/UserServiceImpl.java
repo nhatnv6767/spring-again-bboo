@@ -166,7 +166,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PageResponse<?> getAllUsersWithSortByMultipleColumn(int pageNo, int pageSize, String... sorts) {
+    public PageResponse<?> getAllUsersWithSortByMultipleColumns(int pageNo, int pageSize, String... sorts) {
         if (pageNo > 0) {
             pageNo = pageNo - 1;
         }
@@ -211,6 +211,11 @@ public class UserServiceImpl implements UserService {
                 .items(response)
                 .build();
 
+    }
+
+    @Override
+    public PageResponse<?> getAllUsersWithSortByColumnAndSearch(int pageNo, int pageSize, String search, String sortBy) {
+        return null;
     }
 
     private Set<Address> convertToAddress(Set<AddressDTO> addresses) {

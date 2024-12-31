@@ -8,6 +8,7 @@ import com.ra.dto.response.UserDetailResponse;
 import com.ra.exception.ResourceNotFoundException;
 import com.ra.model.Address;
 import com.ra.model.User;
+import com.ra.repository.SearchRepository;
 import com.ra.repository.UserRepository;
 import com.ra.service.UserService;
 import com.ra.util.UserStatus;
@@ -34,6 +35,7 @@ import java.util.regex.Pattern;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final SearchRepository searchRepository;
 
     @Override
     public long saveUser(UserRequestDTO requestDTO) {
@@ -215,7 +217,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public PageResponse<?> getAllUsersWithSortByColumnAndSearch(int pageNo, int pageSize, String search, String sortBy) {
-        return null;
+        return searchRepository.getAllUsersWithSortByColumnAndSearch(pageNo, pageSize, search, sortBy);
     }
 
     private Set<Address> convertToAddress(Set<AddressDTO> addresses) {

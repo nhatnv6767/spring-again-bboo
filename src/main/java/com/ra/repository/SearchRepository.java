@@ -1,16 +1,14 @@
 package com.ra.repository;
 
 import com.ra.dto.response.PageResponse;
+import com.ra.model.Address;
 import com.ra.model.User;
 import com.ra.repository.criteria.SearchCriteria;
 import com.ra.repository.criteria.UserSearchCriteriaQueryConsumer;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
@@ -99,7 +97,7 @@ public class SearchRepository {
                 .build();
     }
 
-    public PageResponse advanceSearchUser(int pageNo, int pageSize, String sortBy, String... search) {
+    public PageResponse advanceSearchUser(int pageNo, int pageSize, String sortBy, String address, String... search) {
 
         List<SearchCriteria> criteriaList = new ArrayList<>();
 
@@ -120,7 +118,7 @@ public class SearchRepository {
         }
 
         // 2. get total number of records - paging
-        List<User> users = getUsers(pageNo, pageSize, criteriaList, sortBy);
+        List<User> users = getUsers(pageNo, pageSize, criteriaList, sortBy, address);
         long totalElements = getTotalElements(criteriaList);
         return PageResponse.builder()
                 .pageNo(pageNo)
@@ -160,7 +158,7 @@ public class SearchRepository {
      * @param sortBy       trường để sắp xếp
      * @return danh sách User thỏa mãn điều kiện
      */
-    private List<User> getUsers(int pageNo, int pageSize, List<SearchCriteria> criteriaList, String sortBy) {
+    private List<User> getUsers(int pageNo, int pageSize, List<SearchCriteria> criteriaList, String sortBy, String address) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<User> query = criteriaBuilder.createQuery(User.class);
         Root<User> root = query.from(User.class);
@@ -169,10 +167,17 @@ public class SearchRepository {
         Predicate predicate = criteriaBuilder.conjunction();
         UserSearchCriteriaQueryConsumer queryConsumer = new UserSearchCriteriaQueryConsumer(criteriaBuilder, predicate,
                 root);
-        criteriaList.forEach(queryConsumer);
-        predicate = queryConsumer.getPredicate();
-        query.where(predicate);
 
+        if (StringUtils.hasLength(address)) {
+            Join<Address, User> addressUserJoin = root.join("addresses", JoinType.INNER);
+            Predicate addressPredicate = criteriaBuilder.like(addressUserJoin.get("city"), "%" + address + "%");
+            query.where(predicate, addressPredicate);
+        } else {
+            criteriaList.forEach(queryConsumer);
+            predicate = queryConsumer.getPredicate();
+            query.where(predicate);
+        }
+        
         // sort
         if (StringUtils.hasLength(sortBy)) {
             Pattern pattern = Pattern.compile("(\\w+?)(:)(asc|desc)");

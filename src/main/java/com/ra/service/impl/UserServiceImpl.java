@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -227,12 +228,29 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public PageResponse<?> advanceSearchBySpecification(Pageable pageable, String[] user, String[] address) {
-        Page<User> users = userRepository.findAll(pageable);
+
+        Page<User> users = null;
+        List<User> list = new ArrayList<>();
+
+        if (user != null && address != null) {
+            // search by user and address (join table)
+        } else if (user != null && address == null) {
+            // search by user, dont need to join table
+            Specification<User> spec = Specification.where((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(root.get("firstName"), "%" + "T" + "%"));
+
+            list = userRepository.findAll(spec);
+        } else if (user == null && address != null) {
+            // search by address only, dont need to join table
+            users = userRepository.findAll(pageable);
+        }
+
+
         return PageResponse.builder()
                 .pageNo(pageable.getPageNumber())
                 .pageSize(pageable.getPageSize())
                 .totalPages(users.getTotalPages())
-                .items(users.stream().toList())
+                .items(list)
                 .build();
     }
 

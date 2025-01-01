@@ -66,6 +66,11 @@ public class UserServiceImpl implements UserService {
                 .addressType(a.getAddressType())
                 .build()));
         userRepository.save(user);
+
+        if (user.getId() != null) {
+            // send email confirmation
+        }
+
         log.info("User saved successfully");
         return user.getId();
     }

@@ -2,8 +2,18 @@ package com.ra.repository.specification;
 
 import lombok.Getter;
 
+/**
+ * Class SpecSearchCriteria dùng để định nghĩa các tiêu chí tìm kiếm (search
+ * criteria)
+ * cho việc xây dựng các đặc tả (specifications) trong Spring Data JPA
+ *
+ * Các thành phần chính:
+ * - key: tên trường cần tìm kiếm (firstName, lastName, email,...)
+ * - operation: phép toán so sánh (=, >, <, LIKE,...)
+ * - value: giá trị cần so sánh
+ * - orPredicate: cờ đánh dấu điều kiện OR (true) hay AND (false)
+ */
 @Getter
-
 public class SpecSearchCriteria {
     private String key;
     private SearchOperation operation;
@@ -17,6 +27,10 @@ public class SpecSearchCriteria {
         this.value = value;
     }
 
+    /**
+     * Constructor mở rộng hỗ trợ điều kiện OR
+     * Nếu orPredicate = "'" thì sẽ dùng OR, ngược lại dùng AND
+     */
     public SpecSearchCriteria(String orPredicate, String key, SearchOperation operation, Object value) {
         super();
         this.orPredicate = orPredicate != null && orPredicate.equals(SearchOperation.OR_PREDICATE_FLAG);
@@ -25,6 +39,14 @@ public class SpecSearchCriteria {
         this.value = value;
     }
 
+    /**
+     * Constructor xử lý các trường hợp tìm kiếm với LIKE
+     * Hỗ trợ các pattern:
+     * - *abc*: CONTAINS (chứa)
+     * - *abc: ENDS_WITH (kết thúc bằng)
+     * - abc*: STARTS_WITH (bắt đầu bằng)
+     * - abc: EQUALITY (bằng)
+     */
     public SpecSearchCriteria(String key, String operation, Object value, String prefix, String suffix) {
         SearchOperation oper = SearchOperation.getSimpleOperation(operation.charAt(0));
         if (oper != null) {
@@ -47,6 +69,4 @@ public class SpecSearchCriteria {
         this.key = key;
         this.value = value;
     }
-
-
 }

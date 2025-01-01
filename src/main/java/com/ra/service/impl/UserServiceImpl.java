@@ -192,7 +192,6 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(orders));
         Page<User> users = userRepository.findAll(pageable);
 
@@ -225,7 +224,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PageResponse<?> advanceSearchByCriteria(int pageNo, int pageSize, String sortBy, String address, String... search) {
+    public PageResponse<?> advanceSearchByCriteria(int pageNo, int pageSize, String sortBy, String address,
+                                                   String... search) {
         return searchRepository.advanceSearchUser(pageNo, pageSize, sortBy, address, search);
     }
 
@@ -236,10 +236,14 @@ public class UserServiceImpl implements UserService {
         List<User> list = new ArrayList<>();
 
         if (user != null && address != null) {
-            // search by user and address (join table)
-            list = searchRepository.getUsersJoinedAddress(pageable, user, address);
+            // Tìm kiếm user và address (join bảng)
+            // Ví dụ: user = ["firstName:John", "lastName:Doe"]
+            // address = ["city:HaNoi", "country:VietNam"]
+            // Sẽ tìm user có firstName chứa "John" VÀ lastName chứa "Doe"
+            // VÀ có địa chỉ ở thành phố "HaNoi" VÀ quốc gia "VietNam"
+            // TODO: implement search by user and address
+//            list = searchRepository.getUsersJoinedAddress(pageable, user, address);
         } else if (user != null && address == null) {
-
 
             UserSpecificationBuilder builder = new UserSpecificationBuilder();
 
@@ -247,7 +251,8 @@ public class UserServiceImpl implements UserService {
                 Pattern pattern = Pattern.compile("(\\w+?)([:<>~!])(.*)(\\p{Punct}?)(.*)(\\p{Punct}?)");
                 Matcher matcher = pattern.matcher(s);
                 if (matcher.find()) {
-                    builder.with(matcher.group(1), matcher.group(2), matcher.group(3), matcher.group(4), matcher.group(5));
+                    builder.with(matcher.group(1), matcher.group(2), matcher.group(3), matcher.group(4),
+                            matcher.group(5));
                 }
             }
 
@@ -262,7 +267,6 @@ public class UserServiceImpl implements UserService {
             // search by address only, dont need to join table
             users = userRepository.findAll(pageable);
         }
-
 
         return PageResponse.builder()
                 .pageNo(pageable.getPageNumber())

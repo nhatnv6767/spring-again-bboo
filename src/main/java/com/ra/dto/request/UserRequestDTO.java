@@ -74,7 +74,7 @@ public class UserRequestDTO implements Serializable {
 
     @NotNull(message = "status must be not null")
     @EnumValue(name = "status", enumClass = UserStatus.class)
-    private UserStatus status;
+    private String status;
 
     @NotEmpty(message = "addresses can not empty")
     private Set<AddressDTO> addresses;

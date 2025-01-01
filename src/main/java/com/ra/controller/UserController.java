@@ -8,6 +8,7 @@ import com.ra.service.UserService;
 import com.ra.util.UserStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/user")
@@ -68,6 +71,25 @@ public class UserController {
         }
 
     }
+
+    // confirm api (confirm a new user with secret code)
+    @Operation(summary = "Confirm a new user", description = "API to confirm a new user with secret code")
+    @GetMapping("/confirm/{userId}")
+    public ResponseData<?> confirmUser(@PathVariable long userId, @RequestParam String secretCode, HttpServletResponse response) throws IOException {
+        log.info("Request to confirm user with ID: {}", userId);
+        try {
+            userService.confirmUser(userId, secretCode);
+            return new ResponseData<>(HttpStatus.ACCEPTED.value(), Translator.toLocale("user.confirm.success"), null);
+        } catch (ResourceNotFoundException e) {
+            log.error("Error while confirming user : {}", e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        } finally {
+            // direct to login page
+            response.sendRedirect("https://www.google.com");
+
+        }
+    }
+
 
     @Operation(summary = "Delete a user", description = "API to delete an existing user")
     @DeleteMapping("/{userId}")

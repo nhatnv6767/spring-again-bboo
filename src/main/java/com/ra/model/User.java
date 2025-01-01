@@ -77,4 +77,7 @@ public class User extends AbstractEntity<Long> {
 
     @OneToMany(mappedBy = "user")
     private Set<GroupHasUser> users = new HashSet<>();
+
+    @OneToMany(mappedBy = "user")
+    private Set<UserHasRole> roles = new HashSet<>();
 }

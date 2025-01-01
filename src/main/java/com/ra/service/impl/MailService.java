@@ -84,9 +84,9 @@ public class MailService {
         log.info("Sending confirmation link by Kafka {}", message);
 
         String[] arr = message.split(",");
-        String emailTo = arr[0];
-        String id = arr[1];
-        String secretCode = arr[2];
+        String emailTo = arr[0].substring(arr[0].indexOf("=") + 1);
+        String id = arr[1].substring(arr[1].indexOf("=") + 1);
+        String secretCode = arr[2].substring(arr[2].indexOf("=") + 1);
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
 

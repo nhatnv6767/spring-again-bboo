@@ -52,4 +52,76 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     //    @Query(value = "select u from User u where u.createdAt >= :date")
     List<User> findByCreatedAtGreaterThanEqual(Date date);
 
+
+    // before and after
+    //    @Query(value = "select u from User u where u.createdAt > :date")
+    List<User> findByCreatedAtBefore(Date date);
+
+    //    @Query(value = "select u from User u where u.createdAt < :date")
+    List<User> findByCreatedAtAfter(Date date);
+
+    // is null
+    //    @Query(value = "select u from User u where u.email is null")
+    List<User> findByEmailIsNull();
+
+    // is not null
+    //    @Query(value = "select u from User u where u.email is not null")
+    List<User> findByEmailIsNotNull();
+
+    // like
+    //    @Query(value = "select u from User u where u.firstName like %:name%")
+    List<User> findByFirstNameLike(String name);
+
+    // not like
+    //    @Query(value = "select u from User u where u.firstName not like %:name%")
+    List<User> findByFirstNameNotLike(String name);
+
+    // starting with
+    //    @Query(value = "select u from User u where u.firstName like :name%")
+    List<User> findByFirstNameStartingWith(String name);
+
+    // ending with
+    //    @Query(value = "select u from User u where u.firstName like %:name")
+    List<User> findByFirstNameEndingWith(String name);
+
+    // containing
+    //    @Query(value = "select u from User u where u.firstName like %:name%")
+    List<User> findByFirstNameContaining(String name);
+
+    // Not
+    //    @Query(value = "select u from User u where u.firstName <> :name")
+    List<User> findByFirstNameNot(String name);
+
+    // And
+    //    @Query(value = "select u from User u where u.firstName =:firstName and u.lastName =:lastName")
+    List<User> findByFirstNameAndLastName(String firstName, String lastName);
+
+    // Or
+    //    @Query(value = "select u from User u where u.firstName =:firstName or u.lastName =:lastName")
+    List<User> findByFirstNameOrLastName(String firstName, String lastName);
+
+    // Order By
+    //    @Query(value = "select u from User u order by u.firstName")
+    List<User> findByOrderByFirstNameAsc();
+
+    // In
+    //    @Query(value = "select u from User u where u.firstName in (:names)")
+    List<User> findByFirstNameIn(List<String> names);
+
+    // Not In
+    //    @Query(value = "select u from User u where u.firstName not in (:names)")
+    List<User> findByFirstNameNotIn(List<String> names);
+
+    // id in 10 - 20
+    //    @Query(value = "select u from User u where u.id between 10 and 20")
+    List<User> findByIdBetween(Long min, Long max);
+
+    // true/false
+    //    @Query(value = "select u from User u where u.activated = true")
+    List<User> findByActivatedTrue();
+
+    // ignoreCase
+//    @Query(value = "select u from User u where lower(u.firstName) =lower(:name) ")
+    List<User> findByFirstNameIgnoreCase(String name);
+
 }

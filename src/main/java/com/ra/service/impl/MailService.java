@@ -11,6 +11,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Objects;
 
 @Service
@@ -21,12 +22,12 @@ public class MailService {
     @Value("${spring.mail.from}")
     private String emailFrom;
 
-    public String sendEmail(String recipient, String subject, String content, MultipartFile[] files) throws MessagingException {
+    public String sendEmail(String recipient, String subject, String content, MultipartFile[] files) throws MessagingException, UnsupportedEncodingException {
         // Send email
         log.info("Sending..");
         MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-        helper.setFrom(emailFrom);
+        helper.setFrom(emailFrom, "RA");
         if (recipient.contains(",")) {
             helper.setTo(InternetAddress.parse(recipient));
         } else {

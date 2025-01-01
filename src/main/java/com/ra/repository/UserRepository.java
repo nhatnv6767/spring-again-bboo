@@ -121,7 +121,15 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     List<User> findByActivatedTrue();
 
     // ignoreCase
-//    @Query(value = "select u from User u where lower(u.firstName) =lower(:name) ")
+    //    @Query(value = "select u from User u where lower(u.firstName) =lower(:name) ")
     List<User> findByFirstNameIgnoreCase(String name);
+
+    // Order By
+    //    @Query(value = "select u from User u where u.firstName =:name order by u.createdAt desc")
+    List<User> findByFirstNameOrderByCreatedAtDesc(String name);
+
+    // And
+    //    @Query(value = "select u from User u where u.firstName =:firstName and u.lastName =:lastName")
+    List<User> findByFirstNameAndLastNameAllIgnoreCase(String firstName, String lastName);
 
 }

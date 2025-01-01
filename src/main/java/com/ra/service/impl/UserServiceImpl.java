@@ -240,7 +240,7 @@ public class UserServiceImpl implements UserService {
             Specification<User> spec = Specification.where((root, query, criteriaBuilder) ->
                     criteriaBuilder.like(root.get("firstName"), "%" + "T" + "%"));
             Specification<User> genderSpec = Specification.where((root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("gender"), Gender.MALE));
+                    criteriaBuilder.notEqual(root.get("gender"), Gender.MALE));
             Specification<User> finalSpec = spec.and(genderSpec);
 
             list = userRepository.findAll(finalSpec);

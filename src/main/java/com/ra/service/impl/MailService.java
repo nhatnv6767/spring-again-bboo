@@ -6,6 +6,7 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -75,6 +76,37 @@ public class MailService {
         javaMailSender.send(message);
 
         log.info("Email has been sent to {} ", email + " successfully");
+
+    }
+
+    @KafkaListener(topics = "confirm-account-topic", groupId = "confirm-account-group")
+    private void sendConfirmLinkByKafka(String message) throws MessagingException, UnsupportedEncodingException {
+        log.info("Sending confirmation link by Kafka {}", message);
+
+        String[] arr = message.split(",");
+        String emailTo = arr[0].substring(arr[0].indexOf("=") + 1);
+        String id = arr[1].substring(arr[1].indexOf("=") + 1);
+        String secretCode = arr[2].substring(arr[2].indexOf("=") + 1);
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
+
+        Context context = new Context();
+        String linkConfirm = String.format("http://192.168.1.202:8080/user/confirm/%s?secretCode=%s", id, secretCode);
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("linkConfirm", linkConfirm);
+        context.setVariables(properties);
+
+        helper.setFrom(emailFrom, "RA-Academy");
+        helper.setTo(emailTo);
+        helper.setSubject("Confirm your email address");
+
+        String html = templateEngine.process("email/confirm-email", context);
+
+        helper.setText(html, true);
+        javaMailSender.send(mimeMessage);
+
+        log.info("Link has been sent to {} ", emailTo + " successfully");
 
     }
 }

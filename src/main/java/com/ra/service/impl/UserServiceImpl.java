@@ -16,6 +16,7 @@ import com.ra.service.UserService;
 import com.ra.util.Gender;
 import com.ra.util.UserStatus;
 import com.ra.util.UserType;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -26,6 +27,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -40,9 +42,10 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final SearchRepository searchRepository;
+    private final MailService mailService;
 
     @Override
-    public long saveUser(UserRequestDTO requestDTO) {
+    public long saveUser(UserRequestDTO requestDTO) throws MessagingException, UnsupportedEncodingException {
         User user = User.builder()
                 .firstName(requestDTO.getFirstName())
                 .lastName(requestDTO.getLastName())
@@ -52,8 +55,8 @@ public class UserServiceImpl implements UserService {
                 .email(requestDTO.getEmail())
                 .username(requestDTO.getUsername())
                 .password(requestDTO.getPassword())
-                .status(UserStatus.valueOf(requestDTO.getStatus().name()))
-                .type(UserType.valueOf(requestDTO.getType().toUpperCase()))
+                .status(UserStatus.valueOf(requestDTO.getStatus()))
+                .type(UserType.valueOf(requestDTO.getType()))
                 .build();
         requestDTO.getAddresses().forEach(a -> user.saveAddress(Address.builder()
                 .apartmentNumber(a.getApartmentNumber())
@@ -69,6 +72,7 @@ public class UserServiceImpl implements UserService {
 
         if (user.getId() != null) {
             // send email confirmation
+            mailService.sendConfirmLink(user.getEmail(), user.getId(), "secretCode");
         }
 
         log.info("User saved successfully");
@@ -88,8 +92,8 @@ public class UserServiceImpl implements UserService {
         }
         user.setUsername(requestDTO.getUsername());
         user.setPassword(requestDTO.getPassword());
-        user.setStatus(requestDTO.getStatus());
-        user.setType(UserType.valueOf(requestDTO.getType().toUpperCase()));
+        user.setStatus(UserStatus.valueOf(requestDTO.getStatus()));
+        user.setType(UserType.valueOf(requestDTO.getType()));
         user.setAddresses(convertToAddress(requestDTO.getAddresses()));
         userRepository.save(user);
         log.info("User updated successfully");
@@ -224,13 +228,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public PageResponse<?> getAllUsersWithSortByColumnAndSearch(int pageNo, int pageSize, String search,
-                                                                String sortBy) {
+            String sortBy) {
         return searchRepository.searchUsers(pageNo, pageSize, search, sortBy);
     }
 
     @Override
     public PageResponse<?> advanceSearchByCriteria(int pageNo, int pageSize, String sortBy, String address,
-                                                   String... search) {
+            String... search) {
         return searchRepository.advanceSearchUser(pageNo, pageSize, sortBy, address, search);
     }
 
@@ -247,7 +251,7 @@ public class UserServiceImpl implements UserService {
             // Sẽ tìm user có firstName chứa "John" VÀ lastName chứa "Doe"
             // VÀ có địa chỉ ở thành phố "HaNoi" VÀ quốc gia "VietNam"
             // TODO: implement search by user and address
-//            list = searchRepository.getUsersJoinedAddress(pageable, user, address);
+            // list = searchRepository.getUsersJoinedAddress(pageable, user, address);
         } else if (user != null && address == null) {
 
             UserSpecificationBuilder builder = new UserSpecificationBuilder();

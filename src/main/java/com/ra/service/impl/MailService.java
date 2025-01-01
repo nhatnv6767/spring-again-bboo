@@ -10,8 +10,13 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -19,6 +24,7 @@ import java.util.Objects;
 @Slf4j
 public class MailService {
     private final JavaMailSender javaMailSender;
+    private final SpringTemplateEngine templateEngine;
     @Value("${spring.mail.from}")
     private String emailFrom;
 
@@ -44,6 +50,31 @@ public class MailService {
         javaMailSender.send(message);
         log.info("Email has been sent to {} ", recipient + " successfully");
         return "Email has been sent to " + recipient + " successfully";
+
+    }
+
+    public void sendConfirmLink(String email, Long id, String secretCode) throws MessagingException, UnsupportedEncodingException {
+        log.info("Sending confirmation link to {}", email);
+        MimeMessage message = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
+
+        Context context = new Context();
+        String linkConfirm = "/users/userId/?secretCode=xxx";
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("linkConfirm", linkConfirm);
+        context.setVariables(properties);
+
+        helper.setFrom(emailFrom, "RA-Academy");
+        helper.setTo(email);
+        helper.setSubject("Confirm your email address");
+
+        String html = templateEngine.process("email/confirm-email", context);
+
+        helper.setText(html, true);
+        javaMailSender.send(message);
+
+        log.info("Email has been sent to {} ", email + " successfully");
 
     }
 }

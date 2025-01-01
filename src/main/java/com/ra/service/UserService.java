@@ -4,10 +4,13 @@ import com.ra.dto.request.UserRequestDTO;
 import com.ra.dto.response.PageResponse;
 import com.ra.dto.response.UserDetailResponse;
 import com.ra.util.UserStatus;
+import jakarta.mail.MessagingException;
 import org.springframework.data.domain.Pageable;
 
+import java.io.UnsupportedEncodingException;
+
 public interface UserService {
-    long saveUser(UserRequestDTO requestDTO);
+    long saveUser(UserRequestDTO requestDTO) throws MessagingException, UnsupportedEncodingException;
 
     void updateUser(long userId, UserRequestDTO requestDTO);
 

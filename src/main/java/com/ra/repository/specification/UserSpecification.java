@@ -11,6 +11,9 @@ public class UserSpecification implements Specification<User> {
 
     private SpecSearchCriteria criteria;
 
+    public UserSpecification(SpecSearchCriteria specSearchCriteria) {
+    }
+
     @Override
     public Predicate toPredicate(Root<User> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
         return switch (criteria.getOperation()) {

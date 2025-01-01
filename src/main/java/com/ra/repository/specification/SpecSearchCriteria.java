@@ -6,7 +6,7 @@ import lombok.Getter;
  * Class SpecSearchCriteria dùng để định nghĩa các tiêu chí tìm kiếm (search
  * criteria)
  * cho việc xây dựng các đặc tả (specifications) trong Spring Data JPA
- *
+ * <p>
  * Các thành phần chính:
  * - key: tên trường cần tìm kiếm (firstName, lastName, email,...)
  * - operation: phép toán so sánh (=, >, <, LIKE,...)
@@ -47,7 +47,7 @@ public class SpecSearchCriteria {
      * - abc*: STARTS_WITH (bắt đầu bằng)
      * - abc: EQUALITY (bằng)
      */
-    public SpecSearchCriteria(String key, String operation, Object value, String prefix, String suffix) {
+    public SpecSearchCriteria(String key, String operation, String value, String prefix, String suffix) {
         SearchOperation oper = SearchOperation.getSimpleOperation(operation.charAt(0));
         if (oper != null) {
             if (oper == SearchOperation.EQUALITY) {

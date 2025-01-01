@@ -10,7 +10,20 @@ public class SpecSearchCriteria {
     private Object value;
     private Boolean orPredicate;
 
-    public SearchOperation(String key, )
+    public SpecSearchCriteria(String key, SearchOperation operation, Object value) {
+        super();
+        this.key = key;
+        this.operation = operation;
+        this.value = value;
+    }
+
+    public SpecSearchCriteria(String orPredicate, String key, SearchOperation operation, Object value) {
+        super();
+        this.orPredicate = orPredicate != null && orPredicate.equals(SearchOperation.OR_PREDICATE_FLAG);
+        this.key = key;
+        this.operation = operation;
+        this.value = value;
+    }
 
     public SpecSearchCriteria(String key, String operation, String value, String prefix, String suffix) {
         SearchOperation oper = SearchOperation.getSimpleOperation(operation.charAt(0));

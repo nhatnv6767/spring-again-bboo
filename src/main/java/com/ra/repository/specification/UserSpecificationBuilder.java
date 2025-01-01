@@ -3,6 +3,7 @@ package com.ra.repository.specification;
 import com.ra.model.User;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,8 +17,8 @@ public class UserSpecificationBuilder {
     /**
      * Constructor nhận vào danh sách các tiêu chí tìm kiếm
      */
-    public UserSpecificationBuilder(List<SpecSearchCriteria> params) {
-        this.params = params;
+    public UserSpecificationBuilder() {
+        this.params = new ArrayList<>();
     }
 
     /**
@@ -29,7 +30,7 @@ public class UserSpecificationBuilder {
 
     /**
      * Thêm một điều kiện tìm kiếm mới vào builder
-     * 
+     *
      * @param orPredicate Nếu true thì sẽ dùng OR, false thì dùng AND để kết hợp với
      *                    điều kiện trước
      * @param key         Tên trường cần tìm kiếm
@@ -39,7 +40,7 @@ public class UserSpecificationBuilder {
      * @param suffix      Hậu tố cho điều kiện LIKE
      */
     public UserSpecificationBuilder with(String orPredicate, String key, String operation, Object value, String prefix,
-            String suffix) {
+                                         String suffix) {
         // Chuyển đổi operation string sang enum SearchOperation
         SearchOperation oper = SearchOperation.getSimpleOperation(operation.charAt(0));
 
@@ -69,7 +70,7 @@ public class UserSpecificationBuilder {
 
     /**
      * Xây dựng Specification từ tất cả các điều kiện đã thêm vào
-     * 
+     *
      * @return Specification<User> kết hợp tất cả các điều kiện
      */
     public Specification<User> build() {
@@ -85,8 +86,8 @@ public class UserSpecificationBuilder {
             // Nếu là OR thì dùng or(), nếu không thì dùng and() để kết hợp
             result = params.get(i)
                     .getOrPredicate()
-                            ? Specification.where(result).or(new UserSpecification(params.get(i)))
-                            : Specification.where(result).and(new UserSpecification(params.get(i)));
+                    ? Specification.where(result).or(new UserSpecification(params.get(i)))
+                    : Specification.where(result).and(new UserSpecification(params.get(i)));
         }
 
         return result;

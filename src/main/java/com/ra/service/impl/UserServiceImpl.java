@@ -11,6 +11,7 @@ import com.ra.model.User;
 import com.ra.repository.SearchRepository;
 import com.ra.repository.UserRepository;
 import com.ra.repository.specification.UserSpec;
+import com.ra.repository.specification.UserSpecificationBuilder;
 import com.ra.service.UserService;
 import com.ra.util.Gender;
 import com.ra.util.UserStatus;
@@ -237,12 +238,19 @@ public class UserServiceImpl implements UserService {
         if (user != null && address != null) {
             // search by user and address (join table)
         } else if (user != null && address == null) {
-            // search by user, dont need to join table
-            Specification<User> spec = UserSpec.hasFirstName("T");
-            Specification<User> genderSpec = UserSpec.notEqualGender(Gender.MALE);
-            Specification<User> finalSpec = spec.and(genderSpec);
 
-            list = userRepository.findAll(finalSpec);
+
+            UserSpecificationBuilder builder = new UserSpecificationBuilder();
+
+            for (String s : user) {
+                Pattern pattern = Pattern.compile("(\\w+?)([:<>~!])(.*)(\\p{Punct}?)(.*)(\\p{Punct}?)");
+                Matcher matcher = pattern.matcher(s);
+                if (matcher.find()) {
+                    builder.with(matcher.group(1), matcher.group(2), matcher.group(3), matcher.group(4), matcher.group(5));
+                }
+            }
+
+            list = userRepository.findAll(builder.build());
             return PageResponse.builder()
                     .pageNo(pageable.getPageNumber())
                     .pageSize(pageable.getPageSize())

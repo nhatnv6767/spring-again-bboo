@@ -77,7 +77,7 @@ public class UserServiceImpl implements UserService {
 //            mailService.sendConfirmLink(user.getEmail(), user.getId(), "secretCode");
 
             // send message to kafka
-            String message = String.format("email=%s,id=%s,code=%s", user.getEmail(), user.getId(), "code@123");
+            String message = String.format("%s,%s,%s", user.getEmail(), user.getId(), "code@123");
             kafkaTemplate.send("confirm-account-topic", message);
         }
 

@@ -287,7 +287,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void confirmUser(long userId, String secretCode) {
-        log.info("User confirmed successfully");
+        log.info("User confirmed successfully with id: {}", userId);
     }
 
     private Set<Address> convertToAddress(Set<AddressDTO> addresses) {

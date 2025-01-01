@@ -240,6 +240,12 @@ public class UserServiceImpl implements UserService {
                     criteriaBuilder.like(root.get("firstName"), "%" + "T" + "%"));
 
             list = userRepository.findAll(spec);
+            return PageResponse.builder()
+                    .pageNo(pageable.getPageNumber())
+                    .pageSize(pageable.getPageSize())
+                    .totalPages(10)
+                    .items(list)
+                    .build();
         } else if (user == null && address != null) {
             // search by address only, dont need to join table
             users = userRepository.findAll(pageable);

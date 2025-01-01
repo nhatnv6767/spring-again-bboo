@@ -72,7 +72,7 @@ public class UserServiceImpl implements UserService {
 
         if (user.getId() != null) {
             // send email confirmation
-            mailService.sendConfirmLink(user.getEmail(), user.getId(), "secretCode");
+//            mailService.sendConfirmLink(user.getEmail(), user.getId(), "secretCode");
         }
 
         log.info("User saved successfully");

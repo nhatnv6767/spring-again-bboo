@@ -14,6 +14,8 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: none
+  kafka:
+    bootstrap-servers: 192.168.1.113:29092
 
 open:
   api:

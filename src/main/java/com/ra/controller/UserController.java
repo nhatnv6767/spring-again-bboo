@@ -69,6 +69,24 @@ public class UserController {
 
     }
 
+    // confirm api (confirm a new user with secret code)
+    @Operation(summary = "Confirm a new user", description = "API to confirm a new user with secret code")
+    @PatchMapping("/confirm/{userId}")
+    public ResponseData<?> confirmUser(@PathVariable long userId, @RequestParam String secretCode) {
+        log.info("Request to confirm user with ID: {}", userId);
+        try {
+            userService.confirmUser(userId, secretCode);
+            return new ResponseData<>(HttpStatus.ACCEPTED.value(), Translator.toLocale("user.confirm.success"), null);
+        } catch (ResourceNotFoundException e) {
+            log.error("Error while confirming user : {}", e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        } finally {
+            // direct to login page
+            // return "redirect:/login";
+        }
+    }
+
+
     @Operation(summary = "Delete a user", description = "API to delete an existing user")
     @DeleteMapping("/{userId}")
     public ResponseData<?> deleteUser(@Min(1) @PathVariable long userId) {

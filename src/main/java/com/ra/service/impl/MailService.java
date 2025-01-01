@@ -59,7 +59,7 @@ public class MailService {
         MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
 
         Context context = new Context();
-        String linkConfirm = "/users/userId/?secretCode=xxx";
+        String linkConfirm = String.format("http://192.168.1.202/user/confirm/%s?secretCode=%s", id, secretCode);
 
         Map<String, Object> properties = new HashMap<>();
         properties.put("linkConfirm", linkConfirm);

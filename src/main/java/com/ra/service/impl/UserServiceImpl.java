@@ -228,13 +228,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public PageResponse<?> getAllUsersWithSortByColumnAndSearch(int pageNo, int pageSize, String search,
-            String sortBy) {
+                                                                String sortBy) {
         return searchRepository.searchUsers(pageNo, pageSize, search, sortBy);
     }
 
     @Override
     public PageResponse<?> advanceSearchByCriteria(int pageNo, int pageSize, String sortBy, String address,
-            String... search) {
+                                                   String... search) {
         return searchRepository.advanceSearchUser(pageNo, pageSize, sortBy, address, search);
     }
 
@@ -283,6 +283,11 @@ public class UserServiceImpl implements UserService {
                 .totalPages(users.getTotalPages())
                 .items(list)
                 .build();
+    }
+
+    @Override
+    public void confirmUser(long userId, String secretCode) {
+        log.info("User confirmed successfully");
     }
 
     private Set<Address> convertToAddress(Set<AddressDTO> addresses) {

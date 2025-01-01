@@ -1,84 +1,61 @@
 package com.ra.configuration;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
-import org.springframework.stereotype.Component;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
-import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.context.annotation.Profile;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.io.IOException;
-import java.util.List;
+@Configuration
+@Profile("!prod")
+@EnableWebSecurity
+@RequiredArgsConstructor
+public class AppConfig {
 
-@Component
-public class AppConfig extends OncePerRequestFilter {
+    @Bean
+    public WebSecurityCustomizer ignoreResources() {
+        return (webSecurity) -> webSecurity
+                .ignoring()
+                .requestMatchers("/actuator/**", "/v3/**", "/webjars/**", "/swagger-ui*/*swagger-initializer.js", "/swagger-ui*/**");
+    }
 
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(@NonNull CorsRegistry registry) {
+                registry.addMapping("**")
+//                        .allowedOrigins("http://localhost:8500")
+                        .allowedOrigins("*")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH") // Allowed HTTP methods
+                        .allowedHeaders("*") // Allowed request headers
+                        .allowCredentials(false)
+                        .maxAge(3600);
+            }
+        };
+    }
 
-    // first way need to implement WebMvcConfigurer va phai dung @Configuration
-//    @Override
-//    public void addCorsMappings(CorsRegistry registry) {
-//        registry.addMapping("/**")
-//                .allowCredentials(true)
-//                .allowedOrigins("http://localhost:5173", "*")
-//                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-//                .allowedHeaders("*")
-//        ;
-//    }
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-    // second way need dont need to implement WebMvcConfigurer va phai dung @Configuration
-//    @Bean
-//    public WebMvcConfigurer corsFilter() {
-//        return new WebMvcConfigurer() {
-//            @Override
-//            public void addCorsMappings(CorsRegistry registry) {
-//                registry.addMapping("/**")
-//                        .allowCredentials(true)
-//                        .allowedOrigins("http://localhost:5173", "*")
-//                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "*")
-//                        .allowedHeaders("*")
-//                ;
-//            }
-//        };
-//    }
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(request -> request.requestMatchers("/auth/**").permitAll().anyRequest().authenticated());
+//                .sessionManagement()
 
-    // third way dont need to implement WebMvcConfigurer va phai dung @Configuration
-//    @Bean
-//    public FilterRegistrationBean<CorsFilter> corsFilter() {
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        CorsConfiguration config = new CorsConfiguration();
-//        config.setAllowCredentials(true);
-//        config.setAllowedOrigins(List.of("http://localhost:5173", "*"));
-//        config.addAllowedMethod("*");
-//        // accept language, content type
-//        config.addAllowedHeader("*");
-//        // hoac la chi dinh cu the, vi du : /user
-//        source.registerCorsConfiguration("/**", config);
-//        FilterRegistrationBean bean = new FilterRegistrationBean<>(new CorsFilter(source));
-//        // khoi tao dau tien
-////        bean.setOrder(0);
-//        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
-//        return bean;
-//
-//    }
-
-// cach thu 4, dung @Component extends OncePerRequestFilter
-
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
-        response.setHeader("Access-Control-Allow-Headers", "*");
-        response.setHeader("Access-Control-Allow-Credentials", "true");
-        filterChain.doFilter(request, response);
+        return http.build();
     }
 
 }

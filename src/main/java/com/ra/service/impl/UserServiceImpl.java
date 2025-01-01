@@ -10,6 +10,7 @@ import com.ra.model.Address;
 import com.ra.model.User;
 import com.ra.repository.SearchRepository;
 import com.ra.repository.UserRepository;
+import com.ra.repository.specification.UserSpec;
 import com.ra.service.UserService;
 import com.ra.util.Gender;
 import com.ra.util.UserStatus;
@@ -237,10 +238,8 @@ public class UserServiceImpl implements UserService {
             // search by user and address (join table)
         } else if (user != null && address == null) {
             // search by user, dont need to join table
-            Specification<User> spec = Specification.where((root, query, criteriaBuilder) ->
-                    criteriaBuilder.like(root.get("firstName"), "%" + "T" + "%"));
-            Specification<User> genderSpec = Specification.where((root, query, criteriaBuilder) ->
-                    criteriaBuilder.notEqual(root.get("gender"), Gender.MALE));
+            Specification<User> spec = UserSpec.hasFirstName("T");
+            Specification<User> genderSpec = UserSpec.notEqualGender(Gender.MALE);
             Specification<User> finalSpec = spec.and(genderSpec);
 
             list = userRepository.findAll(finalSpec);

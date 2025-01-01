@@ -12,6 +12,6 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
 
     // distinct
-    @Query(value = "SELECT DISTINCT FROM User u where u.firstName =:firstName and u.lastName =:lastName")
-    List<User> findDistinctByFirstNameAndLastName();
+//    @Query(value = "SELECT DISTINCT u FROM User u where u.firstName =:firstName and u.lastName =:lastName")
+    List<User> findDistinctByFirstNameAndLastName(String firstName, String lastName);
 }

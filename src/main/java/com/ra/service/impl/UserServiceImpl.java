@@ -225,6 +225,17 @@ public class UserServiceImpl implements UserService {
         return searchRepository.advanceSearchUser(pageNo, pageSize, sortBy, address, search);
     }
 
+    @Override
+    public PageResponse<?> advanceSearchBySpecification(Pageable pageable, String[] user, String[] address) {
+        Page<User> users = userRepository.findAll(pageable);
+        return PageResponse.builder()
+                .pageNo(pageable.getPageNumber())
+                .pageSize(pageable.getPageSize())
+                .totalPages(users.getTotalPages())
+                .items(users.stream().toList())
+                .build();
+    }
+
     private Set<Address> convertToAddress(Set<AddressDTO> addresses) {
         Set<Address> result = new HashSet<>();
         addresses.forEach(a -> result.add(Address.builder()

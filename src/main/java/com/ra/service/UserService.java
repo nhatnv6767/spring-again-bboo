@@ -4,6 +4,7 @@ import com.ra.dto.request.UserRequestDTO;
 import com.ra.dto.response.PageResponse;
 import com.ra.dto.response.UserDetailResponse;
 import com.ra.util.UserStatus;
+import org.springframework.data.domain.Pageable;
 
 public interface UserService {
     long saveUser(UserRequestDTO requestDTO);
@@ -23,4 +24,6 @@ public interface UserService {
     PageResponse<?> getAllUsersWithSortByColumnAndSearch(int pageNo, int pageSize, String search, String sortBy);
 
     PageResponse<?> advanceSearchByCriteria(int pageNo, int pageSize, String sortBy, String address, String... search);
+
+    PageResponse<?> advanceSearchBySpecification(Pageable pageable, String[] user, String[] address);
 }

@@ -27,7 +27,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class AppConfig {
 
-    private final PreFilter preFilter;
+    //    private final PreFilter preFilter;
     private final UserService userService;
 
     @Bean

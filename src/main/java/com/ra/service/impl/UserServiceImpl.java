@@ -25,6 +25,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -45,6 +47,11 @@ public class UserServiceImpl implements UserService {
     private final SearchRepository searchRepository;
     //    private final MailService mailService;
     private final KafkaTemplate<String, String> kafkaTemplate;
+
+    @Override
+    public UserDetailsService userDetailsService() {
+        return username -> userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
 
     @Override
     public long saveUser(UserRequestDTO requestDTO) throws MessagingException, UnsupportedEncodingException {

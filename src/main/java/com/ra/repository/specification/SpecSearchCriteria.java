@@ -25,7 +25,7 @@ public class SpecSearchCriteria {
         this.value = value;
     }
 
-    public SpecSearchCriteria(String key, String operation, String value, String prefix, String suffix) {
+    public SpecSearchCriteria(String key, String operation, Object value, String prefix, String suffix) {
         SearchOperation oper = SearchOperation.getSimpleOperation(operation.charAt(0));
         if (oper != null) {
             if (oper == SearchOperation.EQUALITY) {

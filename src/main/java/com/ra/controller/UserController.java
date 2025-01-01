@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -146,10 +147,24 @@ public class UserController {
             @RequestParam(defaultValue = "0") int pageNo,
             @Min(1) @RequestParam(defaultValue = "20") int pageSize,
             @RequestParam(required = false) String sortBy,
-            @RequestParam(required = false) String... search
+            @RequestParam(required = false) String address,
+            @RequestParam(defaultValue = "") String... search
     ) {
         log.info("Request to get all users with search using Criteria: {}, pageNo: {}, pageSize: {}, sortBy: {}", search, pageNo, pageSize, sortBy);
         return new ResponseData<>(HttpStatus.OK.value(), Translator.toLocale("user.getall.success"),
-                userService.advanceSearchByCriteria(pageNo, pageSize, search, sortBy));
+                userService.advanceSearchByCriteria(pageNo, pageSize, sortBy, address, search));
+    }
+
+    // Spring Data JPA - Search Specification
+    @Operation(summary = "Get all users with search using Specification", description = "API to get list of all users with pagination and search using Specification")
+    @GetMapping("/search-specification")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseData<?> advanceSearchBySpecification(
+            Pageable pageable,
+            @RequestParam(required = false) String[] user,
+            @RequestParam(required = false) String[] address
+    ) {
+        return new ResponseData<>(HttpStatus.OK.value(), Translator.toLocale("user.getall.success"),
+                userService.advanceSearchBySpecification(pageable, user, address));
     }
 }

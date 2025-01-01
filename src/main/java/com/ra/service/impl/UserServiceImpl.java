@@ -10,7 +10,10 @@ import com.ra.model.Address;
 import com.ra.model.User;
 import com.ra.repository.SearchRepository;
 import com.ra.repository.UserRepository;
+import com.ra.repository.specification.UserSpec;
+import com.ra.repository.specification.UserSpecificationBuilder;
 import com.ra.service.UserService;
+import com.ra.util.Gender;
 import com.ra.util.UserStatus;
 import com.ra.util.UserType;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -172,17 +176,18 @@ public class UserServiceImpl implements UserService {
         }
 
         List<Sort.Order> orders = new ArrayList<>();
-
-        for (String sortBy : sorts) {
-            // firstName:asc|desc
-            // Pattern pattern = Pattern.compile("^[a-zA-Z]+:(asc|desc)$");
-            Pattern pattern = Pattern.compile("(\\w+?)(:)(.*)");
-            Matcher matcher = pattern.matcher(sortBy);
-            if (matcher.find()) {
-                if (matcher.group(3).equalsIgnoreCase("asc")) {
-                    orders.add(new Sort.Order(Sort.Direction.ASC, matcher.group(1)));
-                } else if (matcher.group(3).equalsIgnoreCase("desc")) {
-                    orders.add(new Sort.Order(Sort.Direction.DESC, matcher.group(1)));
+        if (sorts != null) {
+            for (String sortBy : sorts) {
+                // firstName:asc|desc
+                // Pattern pattern = Pattern.compile("^[a-zA-Z]+:(asc|desc)$");
+                Pattern pattern = Pattern.compile("(\\w+?)(:)(.*)");
+                Matcher matcher = pattern.matcher(sortBy);
+                if (matcher.find()) {
+                    if (matcher.group(3).equalsIgnoreCase("asc")) {
+                        orders.add(new Sort.Order(Sort.Direction.ASC, matcher.group(1)));
+                    } else if (matcher.group(3).equalsIgnoreCase("desc")) {
+                        orders.add(new Sort.Order(Sort.Direction.DESC, matcher.group(1)));
+                    }
                 }
             }
         }
@@ -219,8 +224,56 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PageResponse<?> advanceSearchByCriteria(int pageNo, int pageSize, String sortBy, String... search) {
-        return searchRepository.advanceSearchUser(pageNo, pageSize, sortBy, search);
+    public PageResponse<?> advanceSearchByCriteria(int pageNo, int pageSize, String sortBy, String address,
+                                                   String... search) {
+        return searchRepository.advanceSearchUser(pageNo, pageSize, sortBy, address, search);
+    }
+
+    @Override
+    public PageResponse<?> advanceSearchBySpecification(Pageable pageable, String[] user, String[] address) {
+
+        Page<User> users = null;
+        List<User> list = new ArrayList<>();
+
+        if (user != null && address != null) {
+            // Tìm kiếm user và address (join bảng)
+            // Ví dụ: user = ["firstName:John", "lastName:Doe"]
+            // address = ["city:HaNoi", "country:VietNam"]
+            // Sẽ tìm user có firstName chứa "John" VÀ lastName chứa "Doe"
+            // VÀ có địa chỉ ở thành phố "HaNoi" VÀ quốc gia "VietNam"
+            // TODO: implement search by user and address
+//            list = searchRepository.getUsersJoinedAddress(pageable, user, address);
+        } else if (user != null && address == null) {
+
+            UserSpecificationBuilder builder = new UserSpecificationBuilder();
+
+            for (String s : user) {
+                Pattern pattern = Pattern.compile("(\\w+?)([:<>~!])(.*)(\\p{Punct}?)(.*)(\\p{Punct}?)");
+                Matcher matcher = pattern.matcher(s);
+                if (matcher.find()) {
+                    builder.with(matcher.group(1), matcher.group(2), matcher.group(3), matcher.group(4),
+                            matcher.group(5));
+                }
+            }
+
+            list = userRepository.findAll(builder.build());
+            return PageResponse.builder()
+                    .pageNo(pageable.getPageNumber())
+                    .pageSize(pageable.getPageSize())
+                    .totalPages(10)
+                    .items(list)
+                    .build();
+        } else if (user == null && address != null) {
+            // search by address only, dont need to join table
+            users = userRepository.findAll(pageable);
+        }
+
+        return PageResponse.builder()
+                .pageNo(pageable.getPageNumber())
+                .pageSize(pageable.getPageSize())
+                .totalPages(users.getTotalPages())
+                .items(list)
+                .build();
     }
 
     private Set<Address> convertToAddress(Set<AddressDTO> addresses) {

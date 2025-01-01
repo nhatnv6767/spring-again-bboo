@@ -74,4 +74,7 @@ public class User extends AbstractEntity<Long> {
             address.setUser(this); // save user_id
         }
     }
+
+    @OneToMany(mappedBy = "user")
+    private Set<GroupHasUser> users = new HashSet<>();
 }

@@ -5,6 +5,7 @@ import com.ra.model.Address;
 import com.ra.model.User;
 import com.ra.repository.criteria.SearchCriteria;
 import com.ra.repository.criteria.UserSearchCriteriaQueryConsumer;
+import com.ra.repository.specification.SpecSearchCriteria;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
@@ -152,13 +153,13 @@ public class SearchRepository {
      * Sẽ tạo ra câu query tương đương:
      * SELECT u FROM User u WHERE u.firstName = 'John' AND u.age > 20
      *
-     * @param pageNo       số trang hiện tại
+     * @param offset       số trang hiện tại
      * @param pageSize     số lượng record mỗi trang
      * @param criteriaList danh sách các tiêu chí tìm kiếm
      * @param sortBy       trường để sắp xếp
      * @return danh sách User thỏa mãn điều kiện
      */
-    private List<User> getUsers(int pageNo, int pageSize, List<SearchCriteria> criteriaList, String sortBy, String address) {
+    private List<User> getUsers(int offset, int pageSize, List<SearchCriteria> criteriaList, String sortBy, String address) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<User> query = criteriaBuilder.createQuery(User.class);
         Root<User> root = query.from(User.class);
@@ -192,7 +193,7 @@ public class SearchRepository {
             }
         }
 
-        return entityManager.createQuery(query).setFirstResult(pageNo).setMaxResults(pageSize).getResultList();
+        return entityManager.createQuery(query).setFirstResult(offset).setMaxResults(pageSize).getResultList();
     }
 
     private Long getTotalElements(List<SearchCriteria> criteriaList) {
@@ -207,5 +208,100 @@ public class SearchRepository {
         countQuery.select(criteriaBuilder.count(root)).where(predicate);
 
         return entityManager.createQuery(countQuery).getSingleResult();
+    }
+
+    public PageResponse getUsersJoinedAddress(Pageable pageable, String[] user, String[] address) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<User> query = criteriaBuilder.createQuery(User.class);
+        Root<User> root = query.from(User.class);
+        Join<Address, User> addressUserJoin = root.join("addresses", JoinType.INNER);
+
+        // build query
+        List<Predicate> userPre = new ArrayList<>();
+        List<Predicate> addressPre = new ArrayList<>();
+        Pattern pattern = Pattern.compile("(\\w+?)([:<>~!])(.*)(\\p{Punct}?)(.*)(\\p{Punct}?)");
+        for (String u : user) {
+            Matcher matcher = pattern.matcher(u);
+            if (matcher.find()) {
+                SpecSearchCriteria criteria = new SpecSearchCriteria(matcher.group(1), matcher.group(2), matcher.group(3), matcher.group(4), matcher.group(5));
+                Predicate predicate = toUserPredicate(root, criteriaBuilder, criteria);
+                userPre.add(predicate);
+            }
+        }
+        for (String a : address) {
+            Matcher matcher = pattern.matcher(a);
+            if (matcher.find()) {
+                SpecSearchCriteria criteria = new SpecSearchCriteria(matcher.group(1), matcher.group(2), matcher.group(3), matcher.group(4), matcher.group(5));
+                Predicate predicate = toAddressPredicate(addressUserJoin, criteriaBuilder, criteria);
+                addressPre.add(predicate);
+            }
+        }
+
+        Predicate userPredicateArr = criteriaBuilder.or(userPre.toArray(new Predicate[0]));
+        Predicate addressPredicateArr = criteriaBuilder.or(addressPre.toArray(new Predicate[0]));
+        Predicate finalPredicate = criteriaBuilder.and(userPredicateArr, addressPredicateArr);
+
+        query.where(finalPredicate);
+
+        List<User> users = entityManager.createQuery(query).setFirstResult(pageable.getPageNumber()).setMaxResults(pageable.getPageSize()).getResultList();
+
+        return PageResponse.builder()
+                .pageNo(pageable.getPageNumber())
+                .pageSize(pageable.getPageSize())
+                .totalPages(1000)
+                .items(users)
+                .build();
+    }
+
+    public Predicate toUserPredicate(Root<User> root, CriteriaBuilder criteriaBuilder, SpecSearchCriteria criteria) {
+        return switch (criteria.getOperation()) {
+            case EQUALITY -> criteriaBuilder.equal(criteriaBuilder.upper(root.get(criteria.getKey())),
+                    criteria.getValue().toString().toUpperCase());
+            case NEGATION -> criteriaBuilder.notEqual(criteriaBuilder.upper(root.get(criteria.getKey())),
+                    criteria.getValue().toString().toUpperCase());
+            case GREATER_THAN -> {
+                String value = criteria.getValue().toString().toUpperCase();
+                yield criteriaBuilder.greaterThan(criteriaBuilder.upper(root.get(criteria.getKey())), value);
+            }
+            case LESS_THAN -> {
+                String value = criteria.getValue().toString().toUpperCase();
+                yield criteriaBuilder.lessThan(criteriaBuilder.upper(root.get(criteria.getKey())), value);
+            }
+            case LIKE -> criteriaBuilder.like(criteriaBuilder.upper(root.get(criteria.getKey())),
+                    criteria.getValue().toString().toUpperCase());
+            case STARTS_WITH -> criteriaBuilder.like(criteriaBuilder.upper(root.get(criteria.getKey())),
+                    criteria.getValue().toString().toUpperCase() + "%");
+            case ENDS_WITH -> criteriaBuilder.like(criteriaBuilder.upper(root.get(criteria.getKey())),
+                    "%" + criteria.getValue().toString().toUpperCase());
+            case CONTAINS -> criteriaBuilder.like(criteriaBuilder.upper(root.get(criteria.getKey())),
+                    "%" + criteria.getValue().toString().toUpperCase() + "%");
+            default -> throw new IllegalArgumentException("Invalid operation: " + criteria.getOperation());
+        };
+    }
+
+    public Predicate toAddressPredicate(Join<Address, User> root, CriteriaBuilder criteriaBuilder, SpecSearchCriteria criteria) {
+        return switch (criteria.getOperation()) {
+            case EQUALITY -> criteriaBuilder.equal(criteriaBuilder.upper(root.get(criteria.getKey())),
+                    criteria.getValue().toString().toUpperCase());
+            case NEGATION -> criteriaBuilder.notEqual(criteriaBuilder.upper(root.get(criteria.getKey())),
+                    criteria.getValue().toString().toUpperCase());
+            case GREATER_THAN -> {
+                String value = criteria.getValue().toString().toUpperCase();
+                yield criteriaBuilder.greaterThan(criteriaBuilder.upper(root.get(criteria.getKey())), value);
+            }
+            case LESS_THAN -> {
+                String value = criteria.getValue().toString().toUpperCase();
+                yield criteriaBuilder.lessThan(criteriaBuilder.upper(root.get(criteria.getKey())), value);
+            }
+            case LIKE -> criteriaBuilder.like(criteriaBuilder.upper(root.get(criteria.getKey())),
+                    criteria.getValue().toString().toUpperCase());
+            case STARTS_WITH -> criteriaBuilder.like(criteriaBuilder.upper(root.get(criteria.getKey())),
+                    criteria.getValue().toString().toUpperCase() + "%");
+            case ENDS_WITH -> criteriaBuilder.like(criteriaBuilder.upper(root.get(criteria.getKey())),
+                    "%" + criteria.getValue().toString().toUpperCase());
+            case CONTAINS -> criteriaBuilder.like(criteriaBuilder.upper(root.get(criteria.getKey())),
+                    "%" + criteria.getValue().toString().toUpperCase() + "%");
+            default -> throw new IllegalArgumentException("Invalid operation: " + criteria.getOperation());
+        };
     }
 }

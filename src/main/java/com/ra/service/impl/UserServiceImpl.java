@@ -237,6 +237,7 @@ public class UserServiceImpl implements UserService {
 
         if (user != null && address != null) {
             // search by user and address (join table)
+            list = searchRepository.getUsersJoinedAddress(pageable, user, address);
         } else if (user != null && address == null) {
 
 

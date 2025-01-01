@@ -11,6 +11,7 @@ import com.ra.model.User;
 import com.ra.repository.SearchRepository;
 import com.ra.repository.UserRepository;
 import com.ra.service.UserService;
+import com.ra.util.Gender;
 import com.ra.util.UserStatus;
 import com.ra.util.UserType;
 import lombok.RequiredArgsConstructor;
@@ -238,8 +239,11 @@ public class UserServiceImpl implements UserService {
             // search by user, dont need to join table
             Specification<User> spec = Specification.where((root, query, criteriaBuilder) ->
                     criteriaBuilder.like(root.get("firstName"), "%" + "T" + "%"));
+            Specification<User> genderSpec = Specification.where((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("gender"), Gender.MALE));
+            Specification<User> finalSpec = spec.and(genderSpec);
 
-            list = userRepository.findAll(spec);
+            list = userRepository.findAll(finalSpec);
             return PageResponse.builder()
                     .pageNo(pageable.getPageNumber())
                     .pageSize(pageable.getPageSize())

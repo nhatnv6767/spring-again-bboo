@@ -1,6 +1,7 @@
 package com.ra.service.impl;
 
 import com.ra.service.JwtService;
+import com.ra.util.TokenType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -22,6 +23,9 @@ public class JwtServiceImpl implements JwtService {
     @Value("${jwt.token.secretKey}")
     private String secretKey;
 
+    @Value("${jwt.token.refreshKey}")
+    private String refreshKey;
+
     @Value("${jwt.token.expirationMs}")
     private String expirationMs;
 
@@ -40,18 +44,18 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public String extractUsername(String token) {
-        return extractClaims(token, Claims::getSubject);
+    public String extractUsername(String token, TokenType type) {
+        return extractClaims(token, type, Claims::getSubject);
     }
 
     @Override
-    public boolean isValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+    public boolean isValid(String token, TokenType type, UserDetails userDetails) {
+        final String username = extractUsername(token, type);
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token, type);
     }
 
-    private boolean isTokenExpired(String token) {
-        return extractClaims(token, Claims::getExpiration).before(new Date());
+    private boolean isTokenExpired(String token, TokenType type) {
+        return extractClaims(token, type, Claims::getExpiration).before(new Date());
     }
 
     private String generateToken(Map<String, Object> claims, UserDetails userDetails) {
@@ -60,7 +64,7 @@ public class JwtServiceImpl implements JwtService {
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + Long.parseLong(expirationMs))) // 5 minutes
-                .signWith(getKey(), SignatureAlgorithm.HS256)
+                .signWith(getKey(TokenType.ACCESS_TOKEN), SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -70,21 +74,26 @@ public class JwtServiceImpl implements JwtService {
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + Long.parseLong(refreshExpirationMs))) // 100 days
-                .signWith(getKey(), SignatureAlgorithm.HS256)
+                .signWith(getKey(TokenType.REFRESH_TOKEN), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    private Key getKey() {
-        byte[] keyBytes = Decoders.BASE64URL.decode(secretKey);
+    private Key getKey(TokenType type) {
+        byte[] keyBytes;
+        if (type.equals(TokenType.ACCESS_TOKEN)) {
+            keyBytes = Decoders.BASE64URL.decode(secretKey);
+        } else {
+            keyBytes = Decoders.BASE64URL.decode(refreshKey);
+        }
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    private <T> T extractClaims(String token, Function<Claims, T> claimResolver) {
-        final Claims claims = extraAllClaims(token);
+    private <T> T extractClaims(String token, TokenType type, Function<Claims, T> claimResolver) {
+        final Claims claims = extraAllClaims(token, type);
         return claimResolver.apply(claims);
     }
 
-    private Claims extraAllClaims(String token) {
-        return Jwts.parserBuilder().setSigningKey(getKey()).build().parseClaimsJws(token).getBody();
+    private Claims extraAllClaims(String token, TokenType type) {
+        return Jwts.parserBuilder().setSigningKey(getKey(type)).build().parseClaimsJws(token).getBody();
     }
 }

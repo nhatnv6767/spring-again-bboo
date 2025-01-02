@@ -33,6 +33,7 @@ jwt:
   token:
     #    secretKey: IguQSCqT093SQEaF6wsziGck8GP0/43Ot2gW3Zi1CCMd79fl5Nj96GeSotDwSafr
     secretKey: kEcp1fqJY47RB8Azdn7flyw4YcmclSG8mbWcfr21n1o=
+    refreshKey: n2s2rLnrvw6n/JKN5fCqLKAYD42TNXOkO2RuvKup9oU=
     #    expirationMs: 864000000 # 10 days
     expirationMs: 300000 # 5 minutes
     refreshExpirationMs: 8640000000 # 100 days

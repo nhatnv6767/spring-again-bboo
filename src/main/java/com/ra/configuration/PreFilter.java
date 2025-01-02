@@ -2,6 +2,7 @@ package com.ra.configuration;
 
 import com.ra.service.JwtService;
 import com.ra.service.UserService;
+import com.ra.util.TokenType;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,7 +47,7 @@ public class PreFilter extends OncePerRequestFilter {
         final String jwt = authorizationHeader.substring(7);
 
         // Bước 5: Lấy username từ JWT token
-        final String userName = jwtService.extractUsername(jwt);
+        final String userName = jwtService.extractUsername(jwt, TokenType.ACCESS_TOKEN);
 
         // Bước 6: Xác thực token nếu:
         // - Có username hợp lệ
@@ -56,7 +57,7 @@ public class PreFilter extends OncePerRequestFilter {
             UserDetails userDetails = userService.userDetailsService().loadUserByUsername(userName);
 
             // Bước 8: Kiểm tra token có hợp lệ không
-            if (jwtService.isValid(jwt, userDetails)) {
+            if (jwtService.isValid(jwt, TokenType.ACCESS_TOKEN, userDetails)) {
                 // Bước 9: Tạo context xác thực mới
                 SecurityContext context = SecurityContextHolder.createEmptyContext();
 

@@ -4,6 +4,7 @@ import com.ra.dto.request.SignInRequest;
 import com.ra.dto.response.SignInResponse;
 import com.ra.model.User;
 import com.ra.repository.UserRepository;
+import com.ra.util.TokenType;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -65,10 +66,10 @@ public class AuthenticationService {
             throw new BadCredentialsException("Invalid token");
         }
         // extract username from token
-        String userName = jwtService.extractUsername(refreshToken);
+        String userName = jwtService.extractUsername(refreshToken, TokenType.REFRESH_TOKEN);
         // check it into database
         Optional<User> user = userRepository.findByUsername(userName);
-        if (!jwtService.isValid(refreshToken, user.get())) { // get() because User is optional
+        if (!jwtService.isValid(refreshToken, TokenType.REFRESH_TOKEN, user.get())) { // get() because User is optional
             throw new BadCredentialsException("Invalid token");
         }
         String accessToken = jwtService.generateToken(user.get());

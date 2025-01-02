@@ -25,10 +25,18 @@ public class JwtServiceImpl implements JwtService {
     @Value("${jwt.token.expirationMs}")
     private String expirationMs;
 
+    @Value("${jwt.token.refreshExpirationMs}")
+    private String refreshExpirationMs;
+
     @Override
     public String generateToken(UserDetails user) {
         // TODO: Implement JWT token generation
         return generateToken(new HashMap<>(), user);
+    }
+
+    @Override
+    public String generateRefreshToken(UserDetails user) {
+        return generateRefreshToken(new HashMap<>(), user);
     }
 
     @Override
@@ -51,7 +59,17 @@ public class JwtServiceImpl implements JwtService {
                 .setClaims(claims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + Long.parseLong(expirationMs))) // 1 day
+                .setExpiration(new Date(System.currentTimeMillis() + Long.parseLong(expirationMs))) // 5 minutes
+                .signWith(getKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    private String generateRefreshToken(Map<String, Object> claims, UserDetails userDetails) {
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + Long.parseLong(refreshExpirationMs))) // 100 days
                 .signWith(getKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

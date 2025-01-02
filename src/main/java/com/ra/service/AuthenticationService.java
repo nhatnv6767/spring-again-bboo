@@ -35,10 +35,11 @@ public class AuthenticationService {
                         .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
                 String accessToken = jwtService.generateToken(user);
+                String refreshToken = jwtService.generateRefreshToken(user);
 
                 return SignInResponse.builder()
                         .accessToken(accessToken)
-                        .refreshToken("refresh_token")
+                        .refreshToken(refreshToken)
                         .userId(user.getId())
                         .phoneNumber(user.getPhone())
                         .role(user.getType().name())

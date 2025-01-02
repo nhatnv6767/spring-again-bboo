@@ -4,14 +4,12 @@ import com.ra.dto.request.SignInRequest;
 import com.ra.dto.response.SignInResponse;
 import com.ra.model.Token;
 import com.ra.model.User;
-import com.ra.repository.TokenRepository;
 import com.ra.repository.UserRepository;
 import com.ra.util.TokenType;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.tomcat.util.http.parser.Authorization;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,7 +32,7 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final TokenService tokenService;
 
-    public SignInResponse signIn(SignInRequest request) {
+    public SignInResponse authenticate(SignInRequest request) {
 
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -97,7 +95,7 @@ public class AuthenticationService {
                 .build();
     }
 
-    public String logout(HttpServletRequest request) {
+    public String removeToken(HttpServletRequest request) {
         String accessToken = request.getHeader(REFERER);
         if (!StringUtils.hasText(accessToken)) {
             throw new BadCredentialsException("Invalid token");

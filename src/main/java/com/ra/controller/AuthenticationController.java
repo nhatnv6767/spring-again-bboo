@@ -23,18 +23,18 @@ public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
 
-    @PostMapping("/access")
+    @PostMapping("/access-token")
     public ResponseEntity<SignInResponse> signIn(@Valid @RequestBody SignInRequest request) {
-        return new ResponseEntity<>(authenticationService.signIn(request), HttpStatus.OK);
+        return new ResponseEntity<>(authenticationService.authenticate(request), HttpStatus.OK);
     }
 
-    @PostMapping("/refresh")
+    @PostMapping("/refresh-token")
     public ResponseEntity<SignInResponse> refresh(HttpServletRequest request) {
         return new ResponseEntity<>(authenticationService.refresh(request), HttpStatus.OK);
     }
 
-    @PostMapping("/logout")
+    @PostMapping("/remove-token")
     public ResponseEntity<String> logout(HttpServletRequest request) {
-        return new ResponseEntity<>(authenticationService.logout(request), HttpStatus.OK);
+        return new ResponseEntity<>(authenticationService.removeToken(request), HttpStatus.OK);
     }
 }

@@ -27,6 +27,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -45,12 +46,14 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final SearchRepository searchRepository;
-    //    private final MailService mailService;
+    // private final MailService mailService;
     private final KafkaTemplate<String, String> kafkaTemplate;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return username -> userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     @Override
@@ -63,7 +66,7 @@ public class UserServiceImpl implements UserService {
                 .phone(requestDTO.getPhone())
                 .email(requestDTO.getEmail())
                 .username(requestDTO.getUsername())
-                .password(requestDTO.getPassword())
+                .password(passwordEncoder.encode(requestDTO.getPassword()))
                 .status(UserStatus.valueOf(requestDTO.getStatus()))
                 .type(UserType.valueOf(requestDTO.getType()))
                 .build();
@@ -81,7 +84,7 @@ public class UserServiceImpl implements UserService {
 
         if (user.getId() != null) {
             // send email confirmation
-//            mailService.sendConfirmLink(user.getEmail(), user.getId(), "secretCode");
+            // mailService.sendConfirmLink(user.getEmail(), user.getId(), "secretCode");
 
             // send message to kafka
             String message = String.format("email=%s,id=%s,code=%s", user.getEmail(), user.getId(), "secretCode");
@@ -104,7 +107,7 @@ public class UserServiceImpl implements UserService {
             user.setEmail(requestDTO.getEmail());
         }
         user.setUsername(requestDTO.getUsername());
-        user.setPassword(requestDTO.getPassword());
+        user.setPassword(passwordEncoder.encode(requestDTO.getPassword()));
         user.setStatus(UserStatus.valueOf(requestDTO.getStatus()));
         user.setType(UserType.valueOf(requestDTO.getType()));
         user.setAddresses(convertToAddress(requestDTO.getAddresses()));
@@ -241,13 +244,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public PageResponse<?> getAllUsersWithSortByColumnAndSearch(int pageNo, int pageSize, String search,
-                                                                String sortBy) {
+            String sortBy) {
         return searchRepository.searchUsers(pageNo, pageSize, search, sortBy);
     }
 
     @Override
     public PageResponse<?> advanceSearchByCriteria(int pageNo, int pageSize, String sortBy, String address,
-                                                   String... search) {
+            String... search) {
         return searchRepository.advanceSearchUser(pageNo, pageSize, sortBy, address, search);
     }
 

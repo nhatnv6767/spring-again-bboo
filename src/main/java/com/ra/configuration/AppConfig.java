@@ -32,8 +32,9 @@ public class AppConfig {
 
     private final PreFilter preFilter;
     private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
 
-    private String[] WHITE_LIST = { "/auth/**" };
+    private String[] WHITE_LIST = {"/auth/**"};
 
     @Bean
     public WebSecurityCustomizer ignoreResources() {
@@ -59,7 +60,7 @@ public class AppConfig {
                 registry.addMapping("**")
                         // .allowedOrigins("http://localhost:8500")
                         .allowedOrigins("*", "http://192.168.1.202:8080", "http://192.168.1.202:3000") // Allowed
-                                                                                                       // origins
+                        // origins
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH") // Allowed HTTP methods
                         .allowedHeaders("*") // Allowed request headers
                         .allowCredentials(false)
@@ -72,10 +73,10 @@ public class AppConfig {
      * Cấu hình password encoder sử dụng BCrypt
      * để mã hóa và kiểm tra mật khẩu người dùng
      */
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+//    @Bean
+//    public PasswordEncoder passwordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
 
     /**
      * Cấu hình bảo mật chính cho ứng dụng:
@@ -114,7 +115,7 @@ public class AppConfig {
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userService.userDetailsService());
-        authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setPasswordEncoder(passwordEncoder);
         return authProvider;
     }
 

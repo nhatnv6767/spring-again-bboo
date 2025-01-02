@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.tomcat.util.http.parser.Authorization;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,6 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.Optional;
+
+import static org.springframework.http.HttpHeaders.REFERER;
 
 @Service
 @RequiredArgsConstructor
@@ -72,7 +75,7 @@ public class AuthenticationService {
 
     public SignInResponse refresh(HttpServletRequest request) {
 //        System.out.println(request.getHeader("x-token"));
-        String refreshToken = request.getHeader("x-token");
+        String refreshToken = request.getHeader(REFERER);
         if (!StringUtils.hasLength(refreshToken)) {
             throw new BadCredentialsException("Invalid token");
         }
@@ -95,7 +98,7 @@ public class AuthenticationService {
     }
 
     public String logout(HttpServletRequest request) {
-        String accessToken = request.getHeader("x-token");
+        String accessToken = request.getHeader(REFERER);
         if (!StringUtils.hasText(accessToken)) {
             throw new BadCredentialsException("Invalid token");
         }

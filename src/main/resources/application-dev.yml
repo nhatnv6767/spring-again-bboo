@@ -28,3 +28,14 @@ open:
       description: ${API_DESCRIPTION:DUMMY-API-TITLE}
 server:
   port: 8080
+
+jwt:
+  token:
+    #    secretKey: IguQSCqT093SQEaF6wsziGck8GP0/43Ot2gW3Zi1CCMd79fl5Nj96GeSotDwSafr
+    secretKey: kEcp1fqJY47RB8Azdn7flyw4YcmclSG8mbWcfr21n1o=
+    expirationMs: 864000000
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    com.ra: DEBUG

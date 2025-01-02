@@ -7,9 +7,12 @@ import java.io.Serializable;
 
 @Getter
 @Builder
-public class TokenResponse implements Serializable {
+public class SignInResponse implements Serializable {
     private String accessToken;
     private String refreshToken;
     private Long userId;
-    
+
+    private String phoneNumber;
+    private String role;
+
 }

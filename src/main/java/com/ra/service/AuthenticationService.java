@@ -1,35 +1,54 @@
 package com.ra.service;
 
 import com.ra.dto.request.SignInRequest;
-import com.ra.dto.response.TokenResponse;
+import com.ra.dto.response.SignInResponse;
 import com.ra.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final JwtService jwtService;
 
-    public TokenResponse authenticate(SignInRequest request) {
+    public SignInResponse signIn(SignInRequest request) {
 
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()));
 
-        var user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("Username or password is incorrect"));
+            if (authentication.isAuthenticated()) {
+                var user = userRepository.findByUsername(request.getUsername())
+                        .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        String accessToken = jwtService.generateToken(user);
+                String accessToken = jwtService.generateToken(user);
 
-        return TokenResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken("refresh_token")
-                .userId(user.getId())
-                .build();
+                return SignInResponse.builder()
+                        .accessToken(accessToken)
+                        .refreshToken("refresh_token")
+                        .userId(user.getId())
+                        .phoneNumber("user.getPhone()")
+                        .role("user.getType().name()")
+                        .build();
+            } else {
+                throw new BadCredentialsException("Invalid username or password");
+            }
+        } catch (BadCredentialsException e) {
+            log.error("Authentication failed for user: {}", request.getUsername(), e);
+            throw new BadCredentialsException("Invalid username or password");
+        }
     }
 }

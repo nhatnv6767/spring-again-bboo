@@ -1,9 +1,8 @@
 package com.ra.controller;
 
 import com.ra.dto.request.SignInRequest;
-import com.ra.dto.response.TokenResponse;
+import com.ra.dto.response.SignInResponse;
 import com.ra.service.AuthenticationService;
-import com.ra.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +26,7 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/access")
-    public ResponseEntity<TokenResponse> signIn(@Valid @RequestBody SignInRequest request) {
-        return new ResponseEntity<>(authenticationService.authenticate(request), HttpStatus.OK);
+    public ResponseEntity<SignInResponse> signIn(@Valid @RequestBody SignInRequest request) {
+        return new ResponseEntity<>(authenticationService.signIn(request), HttpStatus.OK);
     }
 }

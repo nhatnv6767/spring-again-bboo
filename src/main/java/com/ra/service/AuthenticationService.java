@@ -3,6 +3,7 @@ package com.ra.service;
 import com.ra.dto.request.ResetPasswordDTO;
 import com.ra.dto.request.SignInRequest;
 import com.ra.dto.response.SignInResponse;
+import com.ra.model.RedisToken;
 import com.ra.model.Token;
 import com.ra.model.User;
 import com.ra.repository.UserRepository;
@@ -36,6 +37,7 @@ public class AuthenticationService {
     private final TokenService tokenService;
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
+    private final RedisTokenService redisTokenService;
 
     public SignInResponse authenticate(SignInRequest request) {
 
@@ -52,13 +54,19 @@ public class AuthenticationService {
                 String accessToken = jwtService.generateToken(user);
                 String refreshToken = jwtService.generateRefreshToken(user);
 
-                // save token to db
-                tokenService.save(Token.builder()
-                        .username(user.getUsername())
+                // save token to db postgres
+//                tokenService.save(Token.builder()
+//                        .username(user.getUsername())
+//                        .accessToken(accessToken)
+//                        .refreshToken(refreshToken)
+//                        .build());
+                // save to redis
+                redisTokenService.save(RedisToken.builder()
+                        .id(user.getUsername())
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)
+                        .resetToken("nullfdsaf")
                         .build());
-
 
                 return SignInResponse.builder()
                         .accessToken(accessToken)
@@ -91,6 +99,14 @@ public class AuthenticationService {
         }
         String accessToken = jwtService.generateToken(user.get());
 
+        // save to redis for test
+        redisTokenService.save(RedisToken.builder()
+                .id(user.get().getUsername())
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .resetToken("nullfdsaf")
+                .build());
+
         return SignInResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
@@ -110,7 +126,10 @@ public class AuthenticationService {
         String userName = jwtService.extractUsername(accessToken, TokenType.ACCESS_TOKEN);
         Token currentToken = tokenService.getByUsername(userName);
 
-        tokenService.delete(currentToken);
+        // for postgres
+//        tokenService.delete(currentToken);
+        // for redis
+        redisTokenService.deleteById(userName);
 
         return "Logout successful";
 
@@ -143,6 +162,7 @@ public class AuthenticationService {
         // check secret key is valid or not
         isValidUserByToken(secretKey);
 
+        // save to db
         // update password
 
         return "Password reset successfully";

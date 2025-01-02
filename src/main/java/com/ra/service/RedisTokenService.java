@@ -10,7 +10,16 @@ import org.springframework.stereotype.Service;
 public class RedisTokenService {
     private final RedisTokenRepository redisTokenRepository;
 
-    public void save(RedisToken token) {
-        redisTokenRepository.save(token);
+    public String save(RedisToken token) {
+        RedisToken result = redisTokenRepository.save(token);
+        return result.getId();
+    }
+
+    public RedisToken findById(String id) {
+        return redisTokenRepository.findById(id).orElse(null);
+    }
+
+    public void deleteById(String id) {
+        redisTokenRepository.deleteById(id);
     }
 }

@@ -95,8 +95,8 @@ public class AuthenticationService {
     }
 
     public String logout(HttpServletRequest request) {
-        String accessToken = request.getHeader("ss-token");
-        if (!StringUtils.hasLength(accessToken)) {
+        String accessToken = request.getHeader("x-token");
+        if (!StringUtils.hasText(accessToken)) {
             throw new BadCredentialsException("Invalid token");
         }
 

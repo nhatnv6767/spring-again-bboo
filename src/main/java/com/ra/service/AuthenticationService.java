@@ -24,7 +24,7 @@ public class AuthenticationService {
         var user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("Username or password is incorrect"));
 
-        String accessToken = "DUMMY-TOKEN";
+        String accessToken = jwtService.generateToken(user);
 
         return TokenResponse.builder()
                 .accessToken(accessToken)

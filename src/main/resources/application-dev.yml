@@ -16,6 +16,10 @@ spring:
       ddl-auto: none
   kafka:
     bootstrap-servers: 192.168.1.113:29092
+  data:
+    redis:
+      host: ${REDIS_HOST:192.168.1.113}
+      port: ${REDIS_PORT:6379}
 
 open:
   api:

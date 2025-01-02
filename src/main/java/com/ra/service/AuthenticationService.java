@@ -15,6 +15,7 @@ public class AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
+    private final JwtService jwtService;
 
     public TokenResponse authenticate(SignInRequest request) {
 

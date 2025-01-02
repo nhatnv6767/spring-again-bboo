@@ -81,9 +81,9 @@ public class JwtServiceImpl implements JwtService {
     private Key getKey(TokenType type) {
         byte[] keyBytes;
         if (type.equals(TokenType.ACCESS_TOKEN)) {
-            keyBytes = Decoders.BASE64URL.decode(secretKey);
+            keyBytes = Decoders.BASE64.decode(secretKey);
         } else {
-            keyBytes = Decoders.BASE64URL.decode(refreshKey);
+            keyBytes = Decoders.BASE64.decode(refreshKey);
         }
         return Keys.hmacShaKeyFor(keyBytes);
     }

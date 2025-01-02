@@ -32,4 +32,9 @@ public class AuthenticationController {
     public ResponseEntity<SignInResponse> refresh(HttpServletRequest request) {
         return new ResponseEntity<>(authenticationService.refresh(request), HttpStatus.OK);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+        return new ResponseEntity<>(authenticationService.logout(request), HttpStatus.OK);
+    }
 }

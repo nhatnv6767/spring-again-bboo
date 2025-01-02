@@ -43,6 +43,8 @@ public class AuthenticationService {
                 String accessToken = jwtService.generateToken(user);
                 String refreshToken = jwtService.generateRefreshToken(user);
 
+                // save token to db
+
                 return SignInResponse.builder()
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)
@@ -81,5 +83,16 @@ public class AuthenticationService {
                 .phoneNumber(user.get().getPhone())
                 .role(user.get().getType().name())
                 .build();
+    }
+
+    public String logout(HttpServletRequest request) {
+        String refreshToken = request.getHeader("x-token");
+        if (!StringUtils.hasLength(refreshToken)) {
+            throw new BadCredentialsException("Invalid token");
+        }
+
+
+        return "Logout successful";
+
     }
 }

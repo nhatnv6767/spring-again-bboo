@@ -51,7 +51,7 @@ public class PreFilter extends OncePerRequestFilter {
         // Bước 6: Xác thực token nếu:
         // - Có username hợp lệ
         // - Chưa được xác thực trước đó
-        if (!StringUtils.hasLength(userName) && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (StringUtils.hasLength(userName) && SecurityContextHolder.getContext().getAuthentication() == null) {
             // Bước 7: Load thông tin user từ database
             UserDetails userDetails = userService.userDetailsService().loadUserByUsername(userName);
 

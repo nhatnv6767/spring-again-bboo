@@ -141,7 +141,7 @@ public class UserServiceImpl implements UserService {
                 .phone(user.getPhone())
                 .email(user.getEmail())
                 .username(user.getUsername())
-                // .type(user.getType().name())
+                .type(user.getType().name())
                 .status(user.getStatus())
                 .build();
     }
@@ -244,13 +244,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public PageResponse<?> getAllUsersWithSortByColumnAndSearch(int pageNo, int pageSize, String search,
-            String sortBy) {
+                                                                String sortBy) {
         return searchRepository.searchUsers(pageNo, pageSize, search, sortBy);
     }
 
     @Override
     public PageResponse<?> advanceSearchByCriteria(int pageNo, int pageSize, String sortBy, String address,
-            String... search) {
+                                                   String... search) {
         return searchRepository.advanceSearchUser(pageNo, pageSize, sortBy, address, search);
     }
 

@@ -1,6 +1,7 @@
 package com.ra.service.impl;
 
 import com.ra.service.JwtService;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -13,6 +14,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 @Service
 public class JwtServiceImpl implements JwtService {
@@ -29,6 +31,16 @@ public class JwtServiceImpl implements JwtService {
         return generateToken(new HashMap<>(), user);
     }
 
+    @Override
+    public String extractUsername(String token) {
+        return extractClaims(token, Claims::getSubject);
+    }
+
+    @Override
+    public boolean isValid(String token, UserDetails user) {
+        return false;
+    }
+
     private String generateToken(Map<String, Object> claims, UserDetails userDetails) {
         return Jwts.builder()
                 .setClaims(claims)
@@ -42,5 +54,14 @@ public class JwtServiceImpl implements JwtService {
     private Key getKey() {
         byte[] keyBytes = Decoders.BASE64URL.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    private <T> T extractClaims(String token, Function<Claims, T> claimResolver) {
+        final Claims claims = extraAllClaims(token);
+        return claimResolver.apply(claims);
+    }
+
+    private Claims extraAllClaims(String token) {
+        return Jwts.parserBuilder().setSigningKey(getKey()).build().parseClaimsJws(token).getBody();
     }
 }

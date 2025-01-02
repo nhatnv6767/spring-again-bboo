@@ -9,7 +9,7 @@ import java.util.Optional;
 @Service
 public record TokenService(TokenRepository tokenRepository) {
     public int save(Token token) {
-        Optional<Token> optional = tokenRepository.findUsername(token.getUsername());
+        Optional<Token> optional = tokenRepository.findByUsername(token.getUsername());
         if (optional.isEmpty()) {
             tokenRepository.save(token);
         } else {

@@ -2,7 +2,9 @@ package com.ra.service;
 
 import com.ra.dto.request.SignInRequest;
 import com.ra.dto.response.SignInResponse;
+import com.ra.model.Token;
 import com.ra.model.User;
+import com.ra.repository.TokenRepository;
 import com.ra.repository.UserRepository;
 import com.ra.util.TokenType;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,6 +29,7 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final JwtService jwtService;
+    private final TokenService tokenService;
 
     public SignInResponse signIn(SignInRequest request) {
 
@@ -44,6 +47,12 @@ public class AuthenticationService {
                 String refreshToken = jwtService.generateRefreshToken(user);
 
                 // save token to db
+                tokenService.save(Token.builder()
+                        .username(user.getUsername())
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken)
+                        .build());
+
 
                 return SignInResponse.builder()
                         .accessToken(accessToken)

@@ -14,7 +14,7 @@ import java.util.Set;
 @Entity
 @Table(name = "tbl_token")
 public class Token extends AbstractEntity<Integer> {
-    @Column(name = "username")
+    @Column(name = "username", unique = true)
     private String username;
 
     @Column(name = "access_token")

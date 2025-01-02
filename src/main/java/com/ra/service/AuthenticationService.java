@@ -7,6 +7,7 @@ import com.ra.model.Token;
 import com.ra.model.User;
 import com.ra.repository.UserRepository;
 import com.ra.util.TokenType;
+import com.ra.util.UserStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -121,11 +122,19 @@ public class AuthenticationService {
             throw new UsernameNotFoundException("User not found");
         }
         // user is active or not
+        if (!user.get().getStatus().equals(UserStatus.ACTIVE)) {
+            throw new BadCredentialsException("User is not active");
+        }
 
         // generate token-reset password
+        String resetToken = jwtService.generateResetToken(user.get());
 
         //TODO: send email confirmLink
-        String confirmLink = "http://192.168.1.202:8080/auth/reset-password?secretKey=";
+        String confirmLink = String.format("curl --location 'http://192.168.1.202:8080/auth/reset-password' \\\n" +
+                "--header 'accept: */*' \\\n" +
+                "--header 'Content-Type: application/json' \\\n" +
+                "--data '%s'", resetToken);
+        log.info("Confirm link: {}", confirmLink);
         return "Email sent to " + email;
     }
 

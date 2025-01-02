@@ -32,6 +32,9 @@ public class JwtServiceImpl implements JwtService {
     @Value("${jwt.token.refreshExpirationMs}")
     private String refreshExpirationMs;
 
+    @Value("${jwt.token.resetKey}")
+    private String resetKey;
+
     @Override
     public String generateToken(UserDetails user) {
         // TODO: Implement JWT token generation
@@ -41,6 +44,11 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public String generateRefreshToken(UserDetails user) {
         return generateRefreshToken(new HashMap<>(), user);
+    }
+
+    @Override
+    public String generateResetToken(UserDetails user) {
+        return generateResetToken(new HashMap<>(), user);
     }
 
     @Override
@@ -78,13 +86,32 @@ public class JwtServiceImpl implements JwtService {
                 .compact();
     }
 
+    private String generateResetToken(Map<String, Object> claims, UserDetails userDetails) {
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour
+                .signWith(getKey(TokenType.RESET_PASSWORD_TOKEN), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
     private Key getKey(TokenType type) {
         byte[] keyBytes;
-        if (type.equals(TokenType.ACCESS_TOKEN)) {
-            keyBytes = Decoders.BASE64.decode(secretKey);
-        } else {
-            keyBytes = Decoders.BASE64.decode(refreshKey);
+
+        switch (type) {
+            case ACCESS_TOKEN -> {
+                keyBytes = Decoders.BASE64.decode(secretKey);
+            }
+            case REFRESH_TOKEN -> {
+                keyBytes = Decoders.BASE64.decode(refreshKey);
+            }
+            case RESET_PASSWORD_TOKEN -> {
+                keyBytes = Decoders.BASE64.decode(resetKey);
+            }
+            default -> throw new IllegalStateException("Unexpected value: " + type);
         }
+
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

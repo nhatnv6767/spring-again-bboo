@@ -40,8 +40,8 @@ public class AuthenticationService {
                         .accessToken(accessToken)
                         .refreshToken("refresh_token")
                         .userId(user.getId())
-                        .phoneNumber("user.getPhone()")
-                        .role("user.getType().name()")
+                        .phoneNumber(user.getPhone())
+                        .role(user.getType().name())
                         .build();
             } else {
                 throw new BadCredentialsException("Invalid username or password");

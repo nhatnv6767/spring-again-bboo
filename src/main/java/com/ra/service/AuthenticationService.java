@@ -135,7 +135,7 @@ public class AuthenticationService {
                 "--header 'Content-Type: application/json' \\\n" +
                 "--data '%s'", resetToken);
         log.info("Confirm link: {}", confirmLink);
-        return "Email sent to " + email;
+        return "Email sent to " + email + " resetToken: " + resetToken;
     }
 
     public String resetPassword(String secretKey) {
@@ -162,6 +162,10 @@ public class AuthenticationService {
     private User isValidUserByToken(String secretKey) {
         final String userName = jwtService.extractUsername(secretKey, TokenType.RESET_PASSWORD_TOKEN);
         var user = userRepository.findByUsername(userName);
+
+        if (!user.get().getStatus().equals(UserStatus.ACTIVE)) {
+            throw new BadCredentialsException("User is not active");
+        }
 
         if (!jwtService.isValid(secretKey, TokenType.RESET_PASSWORD_TOKEN, user.get())) {
             throw new BadCredentialsException("Invalid token");

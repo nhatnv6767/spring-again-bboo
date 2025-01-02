@@ -1,5 +1,6 @@
 package com.ra.controller;
 
+import com.ra.dto.request.ResetPasswordDTO;
 import com.ra.dto.request.SignInRequest;
 import com.ra.dto.response.SignInResponse;
 import com.ra.service.AuthenticationService;
@@ -37,4 +38,21 @@ public class AuthenticationController {
     public ResponseEntity<String> logout(HttpServletRequest request) {
         return new ResponseEntity<>(authenticationService.removeToken(request), HttpStatus.OK);
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody String email) {
+        return new ResponseEntity<>(authenticationService.forgotPassword(email), HttpStatus.OK);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody String secretKey) {
+        return new ResponseEntity<>(authenticationService.resetPassword(secretKey), HttpStatus.OK);
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<String> changePassword(@RequestBody ResetPasswordDTO request) {
+        return new ResponseEntity<>(authenticationService.changePassword(request), HttpStatus.OK);
+    }
+
+
 }

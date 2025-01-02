@@ -1,5 +1,6 @@
 package com.ra.service;
 
+import com.ra.dto.request.ResetPasswordDTO;
 import com.ra.dto.request.SignInRequest;
 import com.ra.dto.response.SignInResponse;
 import com.ra.model.Token;
@@ -15,6 +16,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -31,6 +33,8 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final TokenService tokenService;
+    private final PasswordEncoder passwordEncoder;
+    private final UserService userService;
 
     public SignInResponse authenticate(SignInRequest request) {
 
@@ -109,5 +113,51 @@ public class AuthenticationService {
 
         return "Logout successful";
 
+    }
+
+    public String forgotPassword(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        if (user.isEmpty()) {
+            throw new UsernameNotFoundException("User not found");
+        }
+        // user is active or not
+
+        // generate token-reset password
+
+        //TODO: send email confirmLink
+        String confirmLink = "http://192.168.1.202:8080/auth/reset-password?secretKey=";
+        return "Email sent to " + email;
+    }
+
+    public String resetPassword(String secretKey) {
+        log.info("Reset password for secret key: {}", secretKey);
+        // check secret key is valid or not
+        isValidUserByToken(secretKey);
+
+        // update password
+
+        return "Password reset successfully";
+    }
+
+    public String changePassword(ResetPasswordDTO request) {
+        User user = isValidUserByToken(request.getSecretKey());
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new BadCredentialsException("Password and confirm password not match");
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userService.saveUser(user);
+
+        return "Password changed successfully";
+    }
+
+    private User isValidUserByToken(String secretKey) {
+        final String userName = jwtService.extractUsername(secretKey, TokenType.RESET_PASSWORD_TOKEN);
+        var user = userRepository.findByUsername(userName);
+
+        if (!jwtService.isValid(secretKey, TokenType.RESET_PASSWORD_TOKEN, user.get())) {
+            throw new BadCredentialsException("Invalid token");
+        }
+
+        return user.get();
     }
 }

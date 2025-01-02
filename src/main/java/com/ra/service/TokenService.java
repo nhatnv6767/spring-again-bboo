@@ -12,13 +12,15 @@ public record TokenService(TokenRepository tokenRepository) {
         Optional<Token> optional = tokenRepository.findByUsername(token.getUsername());
         if (optional.isEmpty()) {
             tokenRepository.save(token);
+            return token.getId();
         } else {
             Token currentToken = optional.get();
             currentToken.setAccessToken(token.getAccessToken());
             currentToken.setRefreshToken(token.getRefreshToken());
             tokenRepository.save(currentToken);
+            return currentToken.getId();
         }
-        return token.getId();
+
     }
 
     public String delete(Token token) {

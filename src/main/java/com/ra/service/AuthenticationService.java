@@ -95,11 +95,16 @@ public class AuthenticationService {
     }
 
     public String logout(HttpServletRequest request) {
-        String refreshToken = request.getHeader("x-token");
-        if (!StringUtils.hasLength(refreshToken)) {
+        String accessToken = request.getHeader("ss-token");
+        if (!StringUtils.hasLength(accessToken)) {
             throw new BadCredentialsException("Invalid token");
         }
 
+        // extract username from token
+        String userName = jwtService.extractUsername(accessToken, TokenType.ACCESS_TOKEN);
+        Token currentToken = tokenService.getByUsername(userName);
+
+        tokenService.delete(currentToken);
 
         return "Logout successful";
 
